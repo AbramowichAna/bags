@@ -9,5 +9,4 @@ class BagsApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
