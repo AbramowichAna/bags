@@ -3,6 +3,7 @@ plugins {
 	id("org.springframework.boot") version "3.4.4"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("com.diffplug.spotless") version "7.0.2"
+	id("checkstyle")
 }
 
 group = "edu.aseca"
@@ -48,4 +49,14 @@ spotless {
 		)
 		eclipse()
 	}
+}
+
+checkstyle {
+	toolVersion = "10.3.3"
+	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+}
+
+tasks.withType<Checkstyle>().configureEach {
+	ignoreFailures = false
+	maxWarnings = 0
 }
