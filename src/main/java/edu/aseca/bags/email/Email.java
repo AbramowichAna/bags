@@ -3,7 +3,8 @@ package edu.aseca.bags.email;
 import java.util.regex.Pattern;
 
 public record Email(String address) {
-	private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+	private static final Pattern EMAIL_PATTERN = Pattern.compile("^(?!.*\\.\\.)[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$",
+			Pattern.CASE_INSENSITIVE);
 
 	public Email {
 		if (address == null || !EMAIL_PATTERN.matcher(address).matches()) {
