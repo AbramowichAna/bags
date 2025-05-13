@@ -1,5 +1,8 @@
-package edu.aseca.bags.email;
+package edu.aseca.bags.domain.email;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public record Password(String password) {
 
 	public Password {

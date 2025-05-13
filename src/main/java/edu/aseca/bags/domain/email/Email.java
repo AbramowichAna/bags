@@ -1,7 +1,9 @@
-package edu.aseca.bags.email;
+package edu.aseca.bags.domain.email;
 
+import jakarta.persistence.Embeddable;
 import java.util.regex.Pattern;
 
+@Embeddable
 public record Email(String address) {
 	private static final Pattern EMAIL_PATTERN = Pattern.compile("^(?!.*\\.\\.)[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$",
 			Pattern.CASE_INSENSITIVE);
