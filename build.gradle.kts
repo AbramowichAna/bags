@@ -98,4 +98,10 @@ spotless {
 
 checkstyle {
 	toolVersion = "10.3.3"
-	configFile = file("${rootDir}/config/checkstyle/checks")}
+	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+}
+
+tasks.withType<Checkstyle>().configureEach {
+	ignoreFailures = false
+	maxWarnings = 0
+}
