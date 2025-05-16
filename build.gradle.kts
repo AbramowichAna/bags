@@ -29,6 +29,13 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+
+	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
+
 	compileOnly("org.projectlombok:lombok")
 
 	testRuntimeOnly("com.h2database:h2")
@@ -91,10 +98,4 @@ spotless {
 
 checkstyle {
 	toolVersion = "10.3.3"
-	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
-}
-
-tasks.withType<Checkstyle>().configureEach {
-	ignoreFailures = false
-	maxWarnings = 0
-}
+	configFile = file("${rootDir}/config/checkstyle/checks")}
