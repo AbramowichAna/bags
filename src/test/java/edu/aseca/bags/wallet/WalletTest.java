@@ -1,12 +1,12 @@
-package edu.aseca.bags.domain.wallet;
+package edu.aseca.bags.wallet;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import edu.aseca.bags.domain.email.Email;
-import edu.aseca.bags.domain.email.Password;
-import edu.aseca.bags.domain.money.Money;
+import edu.aseca.bags.email.Email;
+import edu.aseca.bags.email.Password;
+import edu.aseca.bags.money.Money;
 import org.junit.jupiter.api.Test;
 
 /*

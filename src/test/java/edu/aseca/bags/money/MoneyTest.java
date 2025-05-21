@@ -1,4 +1,4 @@
-package edu.aseca.bags.domain.money;
+package edu.aseca.bags.money;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
