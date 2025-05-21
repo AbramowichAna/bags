@@ -1,8 +1,5 @@
-package edu.aseca.bags.domain.money;
+package edu.aseca.bags.money;
 
-import jakarta.persistence.Embeddable;
-
-@Embeddable
 public record Money(double amount) {
 
 	public Money {

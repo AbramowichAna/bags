@@ -1,4 +1,4 @@
-package edu.aseca.bags.domain.email;
+package edu.aseca.bags.email;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
