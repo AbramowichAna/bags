@@ -26,7 +26,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<?> register(@RequestBody CreateWalletRequest request) throws AlreadyExistingWallet {
+	public ResponseEntity<?> register(@RequestBody @Valid CreateWalletRequest request) throws AlreadyExistingWallet {
 		createWalletUseCase.create(request.email(), request.password());
 		return ResponseEntity.ok().build();
 	}
