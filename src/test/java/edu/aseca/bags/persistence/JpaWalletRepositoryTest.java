@@ -1,5 +1,7 @@
 package edu.aseca.bags.persistence;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
@@ -9,8 +11,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 public class JpaWalletRepositoryTest {
