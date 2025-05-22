@@ -88,6 +88,42 @@ class WalletIntegrationTest {
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
 
+	@Test
+	void failsWithNotEmailInTheRequest_005() {
+		String requestBody = """
+				{
+				 "password": "claveSegura123"
+				}
+				""";
+
+		var headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		var entity = new HttpEntity<>(requestBody, headers);
+
+		ResponseEntity<String> response = restTemplate.postForEntity(getUrl(), entity, String.class);
+
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+	}
+
+	@Test
+	void failsWithNotPasswordInTheRequest_006() {
+		String requestBody = """
+				{
+				"email": "fake@gmail.com"
+				}
+				""";
+
+		var headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		var entity = new HttpEntity<>(requestBody, headers);
+
+		ResponseEntity<String> response = restTemplate.postForEntity(getUrl(), entity, String.class);
+
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+	}
+
 	private static String getUrl() {
 		return "/auth/register";
 	}
