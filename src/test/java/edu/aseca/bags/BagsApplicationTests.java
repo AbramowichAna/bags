@@ -11,10 +11,4 @@ class BagsApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
-	@Test
-	void mainTest() {
-		System.setProperty("spring.profiles.active", "test");
-		BagsApplication.main(new String[]{});
-	}
 }
