@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import edu.aseca.bags.api.dto.AuthRequest;
 import edu.aseca.bags.api.dto.AuthResponse;
-import edu.aseca.bags.application.WalletRepository;
+import edu.aseca.bags.api.dto.CreateWalletRequest;
 import edu.aseca.bags.persistence.SpringWalletJpaRepository;
 import edu.aseca.bags.persistence.WalletMapper;
 import edu.aseca.bags.testutil.TestWalletFactory;
@@ -57,5 +57,28 @@ public class LoginIntegrationTest {
 		if (expectedStatus == 200) {
 			assertNotNull(response.getBody().token());
 		}
+	}
+
+	@ParameterizedTest
+	@CsvSource({"newuser@gmail.com,newpassword123"})
+	void registerAndLogin_shouldSucceed(String email, String password) {
+		var registerRequest = new CreateWalletRequest(email, password);
+		var registerHeaders = new HttpHeaders();
+		registerHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+		var registerEntity = new HttpEntity<>(registerRequest, registerHeaders);
+		var registerResponse = restTemplate.postForEntity("/auth/register", registerEntity, Void.class);
+
+		assertEquals(200, registerResponse.getStatusCode().value());
+
+		var loginRequest = new AuthRequest(email, password);
+		var loginHeaders = new HttpHeaders();
+		loginHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+		var loginEntity = new HttpEntity<>(loginRequest, loginHeaders);
+		var loginResponse = restTemplate.postForEntity("/auth/login", loginEntity, AuthResponse.class);
+
+		assertEquals(200, loginResponse.getStatusCode().value());
+		assertNotNull(loginResponse.getBody().token());
 	}
 }
