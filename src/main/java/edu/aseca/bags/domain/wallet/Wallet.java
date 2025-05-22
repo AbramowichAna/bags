@@ -1,13 +1,17 @@
-package edu.aseca.bags.wallet;
+package edu.aseca.bags.domain.wallet;
 
-import edu.aseca.bags.email.Email;
-import edu.aseca.bags.email.Password;
-import edu.aseca.bags.money.Money;
+import edu.aseca.bags.domain.email.Email;
+import edu.aseca.bags.domain.email.Password;
+import edu.aseca.bags.domain.money.Money;
+import lombok.Getter;
 
 public class Wallet {
 
+	@Getter
 	private final Email email;
+	@Getter
 	private final Password password;
+	@Getter
 	private Money balance;
 
 	public Wallet(Email email, Password password) {
@@ -26,10 +30,6 @@ public class Wallet {
 		} catch (IllegalArgumentException e) {
 			throw new IllegalStateException("Balance not sufficient", e);
 		}
-	}
-
-	public Money getBalance() {
-		return this.balance;
 	}
 
 }

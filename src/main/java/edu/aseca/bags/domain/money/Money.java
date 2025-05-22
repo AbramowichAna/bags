@@ -1,4 +1,4 @@
-package edu.aseca.bags.money;
+package edu.aseca.bags.domain.money;
 
 public record Money(double amount) {
 
