@@ -1,4 +1,4 @@
-package edu.aseca.bags.email;
+package edu.aseca.bags.domain.email;
 
 import java.util.regex.Pattern;
 
