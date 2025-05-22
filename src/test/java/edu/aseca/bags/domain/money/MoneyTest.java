@@ -3,6 +3,7 @@ package edu.aseca.bags.domain.money;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import edu.aseca.bags.domain.money.Money;
 import org.junit.jupiter.api.Test;
 
 class MoneyTest {

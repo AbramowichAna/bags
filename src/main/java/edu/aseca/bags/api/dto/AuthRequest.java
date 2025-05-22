@@ -1,4 +1,4 @@
-package edu.aseca.bags.auth;
+package edu.aseca.bags.api.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

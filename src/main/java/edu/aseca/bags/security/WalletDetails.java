@@ -15,7 +15,7 @@ public record WalletDetails(Email email, Password password) implements UserDetai
 
 	@Override
 	public String getPassword() {
-		return password().password();
+		return password().hash();
 	}
 
 	@Override

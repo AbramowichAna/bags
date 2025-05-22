@@ -1,14 +1,13 @@
-package edu.aseca.bags.appservice;
+package edu.aseca.bags.application;
 
-import edu.aseca.bags.auth.AuthRequest;
-import edu.aseca.bags.auth.AuthResponse;
-import edu.aseca.bags.domain.wallet.WalletNotFoundException;
+import edu.aseca.bags.api.dto.AuthRequest;
+import edu.aseca.bags.api.dto.AuthResponse;
+import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.security.JwtUtil;
 import edu.aseca.bags.security.WalletDetailsService;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;

@@ -1,13 +1,10 @@
 package edu.aseca.bags.domain.email;
 
-import jakarta.persistence.Embeddable;
-
-@Embeddable
-public record Password(String password) {
+public record Password(String hash) {
 
 	public Password {
-		if (password.length() < 8) {
-			throw new IllegalArgumentException("Password must be at least 8 characters");
+		if (hash == null || hash.isBlank()) {
+			throw new IllegalArgumentException("Password hash cannot be null or blank");
 		}
 	}
 }

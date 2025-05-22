@@ -3,7 +3,11 @@ package edu.aseca.bags.auth;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import edu.aseca.bags.domain.WalletRepository;
+import edu.aseca.bags.api.dto.AuthRequest;
+import edu.aseca.bags.api.dto.AuthResponse;
+import edu.aseca.bags.application.WalletRepository;
+import edu.aseca.bags.persistence.SpringWalletJpaRepository;
+import edu.aseca.bags.persistence.WalletMapper;
 import edu.aseca.bags.testutil.TestWalletFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +28,7 @@ public class LoginIntegrationTest {
 	private TestRestTemplate restTemplate;
 
 	@Autowired
-	private WalletRepository walletRepository;
+	private SpringWalletJpaRepository walletRepository;
 
 	@BeforeEach
 	void setUp() {
@@ -34,7 +38,7 @@ public class LoginIntegrationTest {
 	}
 
 	private void registerTestUser(String email, String rawPassword) {
-		walletRepository.save(TestWalletFactory.createWallet(email, rawPassword));
+		walletRepository.save(WalletMapper.toEntity(TestWalletFactory.createWallet(email, rawPassword)));
 	}
 
 	@ParameterizedTest

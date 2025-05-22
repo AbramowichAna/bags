@@ -1,4 +1,4 @@
-package edu.aseca.bags.domain.wallet;
+package edu.aseca.bags.exception;
 
 public class WalletNotFoundException extends Exception {
 }

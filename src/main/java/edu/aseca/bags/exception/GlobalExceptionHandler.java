@@ -31,4 +31,14 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<?> handleUserNotFound(UsernameNotFoundException ex) {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
+		return ResponseEntity.badRequest().build();
+	}
+
+	@ExceptionHandler(AlreadyExistingWallet.class)
+	public ResponseEntity<?> handleAlreadyExistingWallet(AlreadyExistingWallet e) {
+		return ResponseEntity.status(409).build();
+	}
 }
