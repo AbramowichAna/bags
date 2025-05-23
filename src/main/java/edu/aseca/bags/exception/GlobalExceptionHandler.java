@@ -15,4 +15,14 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<?> handleAlreadyExistingWallet(AlreadyExistingWallet e) {
 		return ResponseEntity.status(409).build();
 	}
+
+	@ExceptionHandler(InsufficientFundsException.class)
+	public ResponseEntity<?> handleInsufficientFundsException(InsufficientFundsException e) {
+		return ResponseEntity.status(400).build();
+	}
+
+	@ExceptionHandler(WalletNotFoundException.class)
+	public ResponseEntity<?> handleWalletNotFoundException(WalletNotFoundException e) {
+		return ResponseEntity.status(404).build();
+	}
 }
