@@ -15,11 +15,11 @@ public class TransferEntity {
 	@Id
 	private String id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "from_wallet_id")
 	private WalletEntity fromWallet;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "to_wallet_id")
 	private WalletEntity toWallet;
 
