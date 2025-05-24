@@ -63,6 +63,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(400).build();
 	}
 
+	@ExceptionHandler(WalletNotFoundException.class)
+	public ResponseEntity<?> handleWalletNotFoundException(WalletNotFoundException e) {
+		return ResponseEntity.status(404).build();
+	}
+
 	private static ApiErrorResponse authError(HttpServletRequest request, String message) {
 		return new ApiErrorResponse("Unauthorized", HttpStatus.UNAUTHORIZED.value(), message, request.getRequestURI(),
 				null);
@@ -74,10 +79,4 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(status).body(response);
 	}
 
-}
-
-	@ExceptionHandler(WalletNotFoundException.class)
-	public ResponseEntity<?> handleWalletNotFoundException(WalletNotFoundException e) {
-		return ResponseEntity.status(404).build();
-	}
 }
