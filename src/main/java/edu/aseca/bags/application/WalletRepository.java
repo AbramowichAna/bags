@@ -9,5 +9,5 @@ public interface WalletRepository {
 
 	boolean existsByEmail(Email email);
 
-	Optional<Wallet> findByEmail(Email fromEmail);
+	Optional<Wallet> findByEmail(Email email);
 }

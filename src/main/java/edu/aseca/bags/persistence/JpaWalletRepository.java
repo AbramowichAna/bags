@@ -30,5 +30,4 @@ public class JpaWalletRepository implements WalletRepository {
 	public Optional<Wallet> findByEmail(Email email) {
 		return jpaRepository.findByEmail(email.address()).map(WalletMapper::toDomain);
 	}
-
 }
