@@ -58,6 +58,16 @@ public class GlobalExceptionHandler {
 			Map<String, String> errors) {
 	}
 
+	@ExceptionHandler(InsufficientFundsException.class)
+	public ResponseEntity<?> handleInsufficientFundsException(InsufficientFundsException e) {
+		return ResponseEntity.status(400).build();
+	}
+
+	@ExceptionHandler(WalletNotFoundException.class)
+	public ResponseEntity<?> handleWalletNotFoundException(WalletNotFoundException e) {
+		return ResponseEntity.status(404).build();
+	}
+
 	private static ApiErrorResponse authError(HttpServletRequest request, String message) {
 		return new ApiErrorResponse("Unauthorized", HttpStatus.UNAUTHORIZED.value(), message, request.getRequestURI(),
 				null);
