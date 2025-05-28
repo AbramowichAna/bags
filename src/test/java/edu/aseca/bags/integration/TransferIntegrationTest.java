@@ -1,0 +1,108 @@
+package edu.aseca.bags.integration;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import edu.aseca.bags.api.TransferController.TransferRequest;
+import edu.aseca.bags.persistence.SpringTransferJpaRepository;
+import edu.aseca.bags.persistence.SpringWalletJpaRepository;
+import edu.aseca.bags.persistence.WalletEntity;
+import edu.aseca.bags.testutil.JwtTestUtil;
+import java.math.BigDecimal;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+public class TransferIntegrationTest {
+
+	@Autowired
+	private TestRestTemplate restTemplate;
+
+	@Autowired
+	private SpringTransferJpaRepository springTransferJpaRepository;
+
+	@Autowired
+	private SpringWalletJpaRepository springWalletJpaRepository;
+
+	@Autowired
+	private JwtTestUtil jwtTestUtil;
+
+	@BeforeEach
+	void setUp() {
+		springTransferJpaRepository.deleteAll();
+		springWalletJpaRepository.deleteAll();
+	}
+
+	private String getUrl() {
+		return "/transfer";
+	}
+
+	private HttpHeaders jsonHeadersWithAuth(String email) {
+		var headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(jwtTestUtil.generateValidToken(email, 3600)); // Generate a valid JWT token
+		return headers;
+	}
+
+	@Test
+	void shouldTransferMoneyAndIsSuccessful_001() {
+
+		springWalletJpaRepository.save(new WalletEntity("wallet1@gmail.com", "hash", BigDecimal.valueOf(100)));
+		springWalletJpaRepository.save(new WalletEntity("wallet2@gmail.com", "hash", BigDecimal.valueOf(50)));
+
+		TransferRequest request = new TransferRequest("wallet2@gmail.com", 100.0);
+		var entity = new HttpEntity<>(request, jsonHeadersWithAuth("wallet1@gmail.com"));
+
+		ResponseEntity<Void> response = restTemplate.postForEntity(getUrl(), entity, Void.class);
+
+		// Assert that the response status is OK (200)
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		// Assert that the transfer was recorded in the database
+		var transfers = springTransferJpaRepository.findAll();
+		assertEquals(1, transfers.size());
+	}
+
+	@Test
+	void shouldFailTransferWithInsufficientFunds_002() {
+
+		springWalletJpaRepository.save(new WalletEntity("wallet1@gmail.com", "hash", BigDecimal.valueOf(100)));
+		springWalletJpaRepository.save(new WalletEntity("wallet2@gmail.com", "hash", BigDecimal.valueOf(50)));
+
+		// Attempt to transfer more than the available balance
+		TransferRequest request = new TransferRequest("wallet2@gmail.com", 200.0);
+		var entity = new HttpEntity<>(request, jsonHeadersWithAuth("wallet1@gmail.com"));
+
+		ResponseEntity<Void> response = restTemplate.postForEntity(getUrl(), entity, Void.class);
+
+		// Assert that the response status is BAD_REQUEST (400) due to insufficient
+		// funds
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+	}
+
+	@Test
+	void shouldFailTransferToNonExistentWallet_003() {
+
+		springWalletJpaRepository.save(new WalletEntity("wallet1@gmail.com", "hash", BigDecimal.valueOf(100)));
+
+		TransferRequest request = new TransferRequest("wallet2@gmail.com", 200.0);
+		var entity = new HttpEntity<>(request, jsonHeadersWithAuth("wallet1@gmail.com"));
+
+		ResponseEntity<Void> response = restTemplate.postForEntity(getUrl(), entity, Void.class);
+
+		// Assert that the response status is NOT_FOUND (404) due to the wallet not
+		// existing
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+	}
+
+}
