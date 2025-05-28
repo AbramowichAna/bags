@@ -21,7 +21,6 @@ public class UseCaseConfig {
 		return new TransferUseCase(walletRepository, transferRepository);
 	}
 
-
 	@Bean
 	public WalletQuery walletQuery(WalletRepository walletRepository) {
 		return new WalletQuery(walletRepository);

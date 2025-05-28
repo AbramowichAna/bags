@@ -7,9 +7,7 @@ import edu.aseca.bags.domain.wallet.Wallet;
 import edu.aseca.bags.exception.InsufficientFundsException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.time.Instant;
-import org.springframework.stereotype.Service;
 
-@Service
 public class TransferUseCase {
 	private final WalletRepository walletRepository;
 	private final TransferRepository transferRepository;
