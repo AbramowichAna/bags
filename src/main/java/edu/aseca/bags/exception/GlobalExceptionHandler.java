@@ -54,6 +54,13 @@ public class GlobalExceptionHandler {
 				request.getRequestURI(), null);
 	}
 
+	@ExceptionHandler(BadPermissionException.class)
+	public ResponseEntity<ApiErrorResponse> handleBadPermissions(BadPermissionException ex,
+			HttpServletRequest request) {
+		return buildErrorResponse("You do not have permissions to this resource", HttpStatus.FORBIDDEN, ex.getMessage(),
+				request.getRequestURI(), null);
+	}
+
 	public record ApiErrorResponse(String title, int status, String detail, String instance,
 			Map<String, String> errors) {
 	}
