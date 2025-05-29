@@ -5,6 +5,7 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.exception.InsufficientFundsException;
+import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.security.SecurityService;
 import jakarta.validation.Valid;
@@ -30,7 +31,7 @@ public class TransferController {
 	@Transactional
 	@PostMapping
 	public ResponseEntity<TransferResponse> transfer(@RequestBody @Valid TransferRequest request)
-			throws WalletNotFoundException, InsufficientFundsException {
+			throws WalletNotFoundException, InsufficientFundsException, InvalidTransferException {
 
 		String fromEmail = securityService.getMail();
 

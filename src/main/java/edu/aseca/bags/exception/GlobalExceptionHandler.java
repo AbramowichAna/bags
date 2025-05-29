@@ -16,6 +16,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+	// Not developing correctly would get here
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, HttpServletRequest req) {
+		return buildErrorResponse("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(),
+				req.getRequestURI(), null);
+	}
+
 	@ExceptionHandler(ConstraintDeclarationException.class)
 	public ResponseEntity<ApiErrorResponse> handleConstraintDeclaration(ConstraintDeclarationException ex,
 			HttpServletRequest req) {
@@ -71,6 +78,12 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(WalletNotFoundException.class)
 	public ResponseEntity<?> handleWalletNotFoundException(WalletNotFoundException e, HttpServletRequest request) {
 		return buildErrorResponse("Wallet not found", HttpStatus.NOT_FOUND, e.getMessage(), request.getRequestURI(),
+				null);
+	}
+
+	@ExceptionHandler(InvalidTransferException.class)
+	public ResponseEntity<?> handleInvalidTransferException(InvalidTransferException e, HttpServletRequest request) {
+		return buildErrorResponse("Invalid transfer", HttpStatus.BAD_REQUEST, e.getMessage(), request.getRequestURI(),
 				null);
 	}
 

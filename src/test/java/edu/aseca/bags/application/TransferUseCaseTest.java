@@ -1,15 +1,13 @@
 package edu.aseca.bags.application;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.domain.email.Email;
-import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.wallet.Wallet;
 import edu.aseca.bags.exception.InsufficientFundsException;
+import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.testutil.TestWalletFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,15 +18,17 @@ public class TransferUseCaseTest {
 	private TransferUseCase transferUseCase;
 	private WalletRepository walletRepository;
 
+	private TransferRepository transferRepository;
+
 	@BeforeEach
 	void setUp() {
 		walletRepository = new InMemoryWalletRepository();
-		TransferRepository transferRepository = new InMemoryTransferRepository();
+		transferRepository = new InMemoryTransferRepository();
 		transferUseCase = new TransferUseCase(walletRepository, transferRepository);
 	}
 
 	@Test
-	void successfulTransfer_001() throws WalletNotFoundException, InsufficientFundsException {
+	void successfulTransfer_001() {
 		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123", 500);
 		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, "to@example.com", "password456", 100);
 		Money transferAmount = Money.of(300);
@@ -36,7 +36,7 @@ public class TransferUseCaseTest {
 		Email fromEmail = fromWallet.getEmail();
 		Email toEmail = toWallet.getEmail();
 
-		Transfer transfer = transferUseCase.execute(fromEmail, toEmail, transferAmount);
+		Transfer transfer = assertDoesNotThrow(() -> transferUseCase.execute(fromEmail, toEmail, transferAmount));
 
 		assertNotNull(transfer);
 		assertEquals(fromWallet, transfer.fromWallet());
@@ -102,5 +102,13 @@ public class TransferUseCaseTest {
 
 		Wallet unchangedFromWallet = walletRepository.findByEmail(fromEmail).orElseThrow();
 		assertEquals(Money.of(200), unchangedFromWallet.getBalance());
+	}
+
+	@Test
+	void throwsExceptionWhenOneWalletTriesToTransferToItself_005() {
+		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123", 200);
+
+		assertThrows(InvalidTransferException.class,
+				() -> transferUseCase.execute(fromWallet.getEmail(), fromWallet.getEmail(), Money.of(100)));
 	}
 }

@@ -98,4 +98,18 @@ public class TransferIntegrationTest {
 
 	}
 
+	@Test
+	void shouldFrailTransferToSameWallet_004() {
+
+		springWalletJpaRepository.save(new WalletEntity("wallet1@gmail.com", "hash", BigDecimal.valueOf(100)));
+
+		TransferRequest request = new TransferRequest("wallet1@gmail.com", 200.0);
+		var entity = new HttpEntity<>(request, jsonHeadersWithAuth());
+
+		ResponseEntity<Void> response = restTemplate.postForEntity(getUrl(), entity, Void.class);
+
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+	}
+
 }

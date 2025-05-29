@@ -5,6 +5,7 @@ import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.wallet.Wallet;
 import edu.aseca.bags.exception.InsufficientFundsException;
+import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.time.Instant;
 
@@ -18,9 +19,15 @@ public class TransferUseCase {
 	}
 
 	public Transfer execute(Email fromEmail, Email toEmail, Money amount)
-			throws WalletNotFoundException, InsufficientFundsException {
-		Wallet fromWallet = walletRepository.findByEmail(fromEmail).orElseThrow(WalletNotFoundException::new);
+			throws WalletNotFoundException, InsufficientFundsException, InvalidTransferException {
 
+		boolean triesToTransferItself = fromEmail.equals(toEmail);
+
+		if (triesToTransferItself) {
+			throw new InvalidTransferException("Cannot transfer to the same wallet");
+		}
+
+		Wallet fromWallet = walletRepository.findByEmail(fromEmail).orElseThrow(WalletNotFoundException::new);
 		Wallet toWallet = walletRepository.findByEmail(toEmail).orElseThrow(WalletNotFoundException::new);
 
 		try {
