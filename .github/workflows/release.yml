@@ -30,7 +30,7 @@ jobs:
       - name: Extract version from Gradle build
         id: extract_version
         run: |
-          VERSION=$(./gradlew -q properties | grep "^version:" | awk '{ print $2 }')
+          VERSION=$(./gradlew -q printVersion)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Fetch all tags
@@ -54,7 +54,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag "$NEW_TAG"
-          git push origin "$NEW_TAG"
+          if ! git push origin "$NEW_TAG"; then
+            echo "Error: Failed to push tag $NEW_TAG to remote repository." >&2
+            exit 1
+          fi
           echo "TAG_CREATED=true" >> $GITHUB_ENV
           echo "TAG_NAME=$NEW_TAG" >> $GITHUB_ENV
 
@@ -76,4 +79,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/pablobaratta/minimal-api:${{ env.VERSION }}
+          tags: ghcr.io/aniabramowich/bags:${{ env.VERSION }}
