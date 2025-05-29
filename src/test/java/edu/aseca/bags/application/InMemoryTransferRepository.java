@@ -15,17 +15,12 @@ class InMemoryTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public Optional<Transfer> findById(UUID id) {
+	public Optional<Transfer> findByTransferNumber(UUID id) {
 		return Optional.ofNullable(data.get(id));
 	}
 
 	@Override
-	public void delete(Transfer transfer) {
-		data.entrySet().removeIf(entry -> entry.getValue().equals(transfer));
-	}
-
-	@Override
-	public boolean existsById(UUID id) {
+	public boolean existsByTransferNumber(UUID id) {
 		return data.containsKey(id);
 	}
 

@@ -45,7 +45,7 @@ public class JpaTransferRepositoryTest {
 
 		transferRepository.save(transfer);
 
-		Optional<Transfer> savedEntityOptional = transferRepository.findById(transfer.transferNumber());
+		Optional<Transfer> savedEntityOptional = transferRepository.findByTransferNumber(transfer.transferNumber());
 
 		assertTrue(savedEntityOptional.isPresent(), "Transfer should be saved in the repository");
 		Transfer savedTransfer = savedEntityOptional.get();
@@ -59,7 +59,7 @@ public class JpaTransferRepositoryTest {
 	@Test
 	void findByIdReturnsEmptyWhenTransferDoesNotExist_002() {
 		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository);
-		Optional<Transfer> transfer = transferRepository.findById(UUID.randomUUID());
+		Optional<Transfer> transfer = transferRepository.findByTransferNumber(UUID.randomUUID());
 		assertFalse(transfer.isPresent(), "Should return empty when transfer does not exist");
 	}
 }

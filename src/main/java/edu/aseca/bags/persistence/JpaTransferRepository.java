@@ -22,18 +22,12 @@ public class JpaTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public Optional<Transfer> findById(UUID id) {
+	public Optional<Transfer> findByTransferNumber(UUID id) {
 		return jpaRepository.findByTransferNumber(id).map(TransferMapper::toDomain);
 	}
 
 	@Override
-	public void delete(Transfer transfer) {
-		TransferEntity entity = TransferMapper.toEntity(transfer);
-		jpaRepository.delete(entity);
-	}
-
-	@Override
-	public boolean existsById(UUID id) {
+	public boolean existsByTransferNumber(UUID id) {
 		return jpaRepository.findByTransferNumber(id).isPresent();
 	}
 }

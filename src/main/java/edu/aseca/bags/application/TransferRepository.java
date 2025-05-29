@@ -7,9 +7,7 @@ import java.util.UUID;
 public interface TransferRepository {
 	void save(Transfer transfer);
 
-	Optional<Transfer> findById(UUID id);
+	Optional<Transfer> findByTransferNumber(UUID id);
 
-	void delete(Transfer transfer);
-
-	boolean existsById(UUID id);
+	boolean existsByTransferNumber(UUID id);
 }

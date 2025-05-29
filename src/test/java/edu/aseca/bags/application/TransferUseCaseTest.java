@@ -11,6 +11,7 @@ import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.wallet.Wallet;
 import edu.aseca.bags.exception.InsufficientFundsException;
 import edu.aseca.bags.exception.WalletNotFoundException;
+import edu.aseca.bags.testutil.TestWalletFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,21 +29,12 @@ public class TransferUseCaseTest {
 
 	@Test
 	void successfulTransfer_001() throws WalletNotFoundException, InsufficientFundsException {
-		Email fromEmail = new Email("from@example.com");
-		Email toEmail = new Email("to@example.com");
-		Password fromPassword = new Password("password123");
-		Password toPassword = new Password("password456");
-		Money initialFromBalance = Money.of(500);
-		Money initialToBalance = Money.of(100);
+		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123", 500);
+		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, "to@example.com", "password456", 100);
 		Money transferAmount = Money.of(300);
 
-		Wallet fromWallet = new Wallet(fromEmail, fromPassword);
-		fromWallet.addBalance(initialFromBalance);
-		walletRepository.save(fromWallet);
-
-		Wallet toWallet = new Wallet(toEmail, toPassword);
-		toWallet.addBalance(initialToBalance);
-		walletRepository.save(toWallet);
+		Email fromEmail = fromWallet.getEmail();
+		Email toEmail = toWallet.getEmail();
 
 		Transfer transfer = transferUseCase.execute(fromEmail, toEmail, transferAmount);
 
@@ -61,21 +53,18 @@ public class TransferUseCaseTest {
 
 	@Test
 	void throwsExceptionWhenFromWalletHasInsufficientFunds_002() {
-		Email fromEmail = new Email("from@example.com");
-		Email toEmail = new Email("to@example.com");
-		Password fromPassword = new Password("password123");
-		Password toPassword = new Password("password456");
-		Money initialFromBalance = Money.of(100);
-		Money initialToBalance = Money.of(50);
+		Money initialFromBalance = new Money(100);
+		Money initialToBalance = new Money(50);
+
+		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123",
+				initialFromBalance.amount());
+		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, "to@example.com", "password456",
+				initialToBalance.amount());
+
+		Email fromEmail = fromWallet.getEmail();
+		Email toEmail = toWallet.getEmail();
+
 		Money transferAmount = Money.of(200);
-
-		Wallet fromWallet = new Wallet(fromEmail, fromPassword);
-		fromWallet.addBalance(initialFromBalance);
-		walletRepository.save(fromWallet);
-
-		Wallet toWallet = new Wallet(toEmail, toPassword);
-		toWallet.addBalance(initialToBalance);
-		walletRepository.save(toWallet);
 
 		assertThrows(InsufficientFundsException.class,
 				() -> transferUseCase.execute(fromEmail, toEmail, transferAmount));
@@ -90,13 +79,11 @@ public class TransferUseCaseTest {
 	@Test
 	void throwsExceptionWhenFromWalletDoesNotExist_003() {
 		Email nonExistentEmail = new Email("nonexistent@example.com");
-		Email toEmail = new Email("to@example.com");
-		Password toPassword = new Password("password456");
-		Money transferAmount = Money.of(100);
 
-		Wallet toWallet = new Wallet(toEmail, toPassword);
-		toWallet.addBalance(Money.of(50));
-		walletRepository.save(toWallet);
+		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, "to@example.com", "password456", 50);
+		Email toEmail = toWallet.getEmail();
+
+		Money transferAmount = Money.of(100);
 
 		assertThrows(WalletNotFoundException.class,
 				() -> transferUseCase.execute(nonExistentEmail, toEmail, transferAmount));
@@ -104,14 +91,11 @@ public class TransferUseCaseTest {
 
 	@Test
 	void throwsExceptionWhenToWalletDoesNotExist_004() {
-		Email fromEmail = new Email("from@example.com");
-		Email nonExistentEmail = new Email("nonexistent@example.com");
-		Password fromPassword = new Password("password123");
-		Money transferAmount = Money.of(100);
+		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123", 200);
+		Email fromEmail = fromWallet.getEmail();
 
-		Wallet fromWallet = new Wallet(fromEmail, fromPassword);
-		fromWallet.addBalance(Money.of(200));
-		walletRepository.save(fromWallet);
+		Email nonExistentEmail = new Email("nonexistent@example.com");
+		Money transferAmount = Money.of(100);
 
 		assertThrows(WalletNotFoundException.class,
 				() -> transferUseCase.execute(fromEmail, nonExistentEmail, transferAmount));
