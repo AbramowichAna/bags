@@ -8,17 +8,14 @@ import java.math.BigDecimal;
 
 public class TransferMapper {
 
-	public static TransferEntity toEntity(Transfer transfer, WalletEntity fromWalletEntity, WalletEntity toWalletEntity) {
+	public static TransferEntity toEntity(Transfer transfer, WalletEntity fromWalletEntity,
+			WalletEntity toWalletEntity) {
 		if (transfer == null) {
 			return null;
 		}
 
-		TransferEntity entity = new TransferEntity(
-				fromWalletEntity,
-				toWalletEntity,
-				BigDecimal.valueOf(transfer.amount().amount()),
-				transfer.timestamp()
-		);
+		TransferEntity entity = new TransferEntity(fromWalletEntity, toWalletEntity,
+				BigDecimal.valueOf(transfer.amount().amount()), transfer.timestamp());
 		entity.setTransferNumber(transfer.transferNumber().value());
 
 		return entity;

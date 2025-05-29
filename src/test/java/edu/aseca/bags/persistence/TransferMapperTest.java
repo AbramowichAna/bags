@@ -31,8 +31,8 @@ public class TransferMapperTest {
 		UUID transferNumber = UUID.randomUUID();
 		Transfer transfer = new Transfer(TransferNumber.of(transferNumber), fromWallet, toWallet, amount, timestamp);
 
-		TransferEntity entity = TransferMapper.toEntity(transfer,
-				WalletMapper.toEntity(fromWallet), WalletMapper.toEntity(toWallet));
+		TransferEntity entity = TransferMapper.toEntity(transfer, WalletMapper.toEntity(fromWallet),
+				WalletMapper.toEntity(toWallet));
 
 		assertEquals(transferNumber, entity.getTransferNumber());
 		assertEquals("from@example.com", entity.getFromWallet().getEmail());
@@ -51,7 +51,8 @@ public class TransferMapperTest {
 
 		Instant timestamp = Instant.now();
 		UUID transferNumber = UUID.randomUUID();
-		TransferEntity transferEntity = new TransferEntity(fromWalletEntity, toWalletEntity, BigDecimal.valueOf(150.0), timestamp);
+		TransferEntity transferEntity = new TransferEntity(fromWalletEntity, toWalletEntity, BigDecimal.valueOf(150.0),
+				timestamp);
 		transferEntity.setTransferNumber(transferNumber); // Explicitly set the transferNumber
 
 		Transfer transfer = TransferMapper.toDomain(transferEntity);

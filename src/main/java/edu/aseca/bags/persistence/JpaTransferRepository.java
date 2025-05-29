@@ -13,7 +13,7 @@ public class JpaTransferRepository implements TransferRepository {
 	private final SpringWalletJpaRepository walletJpaRepository;
 
 	public JpaTransferRepository(SpringTransferJpaRepository jpaRepository,
-								 SpringWalletJpaRepository walletJpaRepository) {
+			SpringWalletJpaRepository walletJpaRepository) {
 		this.jpaRepository = jpaRepository;
 		this.walletJpaRepository = walletJpaRepository;
 	}

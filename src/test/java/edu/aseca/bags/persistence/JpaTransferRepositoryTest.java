@@ -29,7 +29,8 @@ public class JpaTransferRepositoryTest {
 	@Test
 	void saveTransferPersistsDataCorrectly_001() {
 
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository, this.walletRepository);
+		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
+				this.walletRepository);
 		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
 
 		Wallet fromWallet = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
@@ -59,7 +60,8 @@ public class JpaTransferRepositoryTest {
 
 	@Test
 	void findByIdReturnsEmptyWhenTransferDoesNotExist_002() {
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository, this.walletRepository);
+		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
+				this.walletRepository);
 		Optional<Transfer> transfer = transferRepository.findByTransferNumber(TransferNumber.of(UUID.randomUUID()));
 		assertFalse(transfer.isPresent(), "Should return empty when transfer does not exist");
 	}
