@@ -14,7 +14,10 @@ public class TransferMapper {
 		WalletEntity fromWalletEntity = WalletMapper.toEntity(transfer.fromWallet());
 		WalletEntity toWalletEntity = WalletMapper.toEntity(transfer.toWallet());
 
-		return new TransferEntity(fromWalletEntity, toWalletEntity, transfer.amount().amount(), transfer.timestamp());
+		TransferEntity entity = new TransferEntity(fromWalletEntity, toWalletEntity, transfer.amount().amount(),
+				transfer.timestamp());
+		entity.setTransferNumber(transfer.transferNumber());
+		return entity;
 	}
 
 	public static Transfer toDomain(TransferEntity entity) {
@@ -25,6 +28,7 @@ public class TransferMapper {
 		Wallet fromWallet = WalletMapper.toDomain(entity.getFromWallet());
 		Wallet toWallet = WalletMapper.toDomain(entity.getToWallet());
 
-		return new Transfer(fromWallet, toWallet, new Money(entity.getAmount()), entity.getTimestamp());
+		return new Transfer(entity.getTransferNumber(), fromWallet, toWallet, new Money(entity.getAmount()),
+				entity.getTimestamp());
 	}
 }

@@ -1,4 +1,3 @@
-
 package edu.aseca.bags.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,12 +10,13 @@ import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.wallet.Wallet;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class TransferMapperTest {
 
 	@Test
-	void toEntityShouldMapDomainToEntityCorrectly() {
+	void toEntityShouldMapDomainToEntityCorrectly_001() {
 		Email fromEmail = new Email("from@example.com");
 		Password fromPassword = new Password("frompass");
 		Wallet fromWallet = new Wallet(fromEmail, fromPassword);
@@ -27,10 +27,12 @@ public class TransferMapperTest {
 
 		Money amount = new Money(100.0);
 		Instant timestamp = Instant.now();
-		Transfer transfer = new Transfer(fromWallet, toWallet, amount, timestamp);
+		UUID transferNumber = UUID.randomUUID();
+		Transfer transfer = new Transfer(transferNumber, fromWallet, toWallet, amount, timestamp);
 
 		TransferEntity entity = TransferMapper.toEntity(transfer);
 
+		assertEquals(transferNumber, entity.getTransferNumber());
 		assertEquals("from@example.com", entity.getFromWallet().getEmail());
 		assertEquals("frompass", entity.getFromWallet().getPassword());
 		assertEquals("to@example.com", entity.getToWallet().getEmail());
@@ -40,16 +42,19 @@ public class TransferMapperTest {
 	}
 
 	@Test
-	void toDomainShouldMapEntityToDomainCorrectly() {
+	void toDomainShouldMapEntityToDomainCorrectly_002() {
 		WalletEntity fromWalletEntity = new WalletEntity("source@example.com", "sourcepass", BigDecimal.valueOf(500.0));
 		WalletEntity toWalletEntity = new WalletEntity("destination@example.com", "destpass",
 				BigDecimal.valueOf(300.0));
 
 		Instant timestamp = Instant.now();
+		UUID transferNumber = UUID.randomUUID();
 		TransferEntity transferEntity = new TransferEntity(fromWalletEntity, toWalletEntity, 150.0, timestamp);
+		transferEntity.setTransferNumber(transferNumber); // Explicitly set the transferNumber
 
 		Transfer transfer = TransferMapper.toDomain(transferEntity);
 
+		assertEquals(transferNumber, transfer.transferNumber());
 		assertEquals("source@example.com", transfer.fromWallet().getEmail().address());
 		assertEquals("sourcepass", transfer.fromWallet().getPassword().hash());
 		assertEquals(500.0, transfer.fromWallet().getBalance().amount());
@@ -63,7 +68,7 @@ public class TransferMapperTest {
 	}
 
 	@Test
-	void nullTransferShouldMapToNull() {
+	void nullTransferShouldMapToNull_003() {
 		assertNull(TransferMapper.toEntity(null));
 		assertNull(TransferMapper.toDomain(null));
 	}

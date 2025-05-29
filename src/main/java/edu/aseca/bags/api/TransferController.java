@@ -38,16 +38,16 @@ public class TransferController {
 				new Money(request.amount()));
 
 		return ResponseEntity.ok(new TransferResponse(transfer));
-
 	}
 
 	public record TransferRequest(@NotNull String toEmail, @NotNull Double amount) {
 	}
 
-	public record TransferResponse(String fromEmail, String toEmail, Double amount, String timestamp) {
+	public record TransferResponse(String fromEmail, String toEmail, Double amount, String timestamp,
+			String transferNumber) {
 		public TransferResponse(Transfer transfer) {
 			this(transfer.fromWallet().getEmail().address(), transfer.toWallet().getEmail().address(),
-					transfer.amount().amount(), transfer.timestamp().toString());
+					transfer.amount().amount(), transfer.timestamp().toString(), transfer.transferNumber().toString());
 		}
 	}
 }

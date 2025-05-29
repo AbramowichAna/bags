@@ -13,7 +13,11 @@ import lombok.Setter;
 public class TransferEntity {
 
 	@Id
-	private String id;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	UUID id;
+
+	@Column(nullable = false, unique = true)
+	private UUID transferNumber;
 
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "from_wallet_id")
@@ -23,16 +27,17 @@ public class TransferEntity {
 	@JoinColumn(name = "to_wallet_id")
 	private WalletEntity toWallet;
 
+	@Column(nullable = false)
 	private Double amount;
 
+	@Column(nullable = false)
 	private Instant timestamp;
 
 	public TransferEntity() {
-		this.id = UUID.randomUUID().toString();
 	}
 
 	public TransferEntity(WalletEntity fromWallet, WalletEntity toWallet, Double amount, Instant timestamp) {
-		this();
+		this.transferNumber = UUID.randomUUID();
 		this.fromWallet = fromWallet;
 		this.toWallet = toWallet;
 		this.amount = amount;

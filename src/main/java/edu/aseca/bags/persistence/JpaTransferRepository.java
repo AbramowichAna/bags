@@ -2,6 +2,8 @@ package edu.aseca.bags.persistence;
 
 import edu.aseca.bags.application.TransferRepository;
 import edu.aseca.bags.domain.transaction.Transfer;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -20,8 +22,8 @@ public class JpaTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public Transfer findById(String id) {
-		return jpaRepository.findById(id).map(TransferMapper::toDomain).orElse(null);
+	public Optional<Transfer> findById(UUID id) {
+		return jpaRepository.findByTransferNumber(id).map(TransferMapper::toDomain);
 	}
 
 	@Override
@@ -31,7 +33,7 @@ public class JpaTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public boolean existsById(String id) {
-		return jpaRepository.existsById(id);
+	public boolean existsById(UUID id) {
+		return jpaRepository.findByTransferNumber(id).isPresent();
 	}
 }

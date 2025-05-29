@@ -3,20 +3,20 @@ package edu.aseca.bags.application;
 import edu.aseca.bags.domain.transaction.Transfer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 class InMemoryTransferRepository implements TransferRepository {
-	private final Map<String, Transfer> data = new HashMap<>();
+	private final Map<UUID, Transfer> data = new HashMap<>();
 
 	@Override
 	public void save(Transfer transfer) {
-		String id = UUID.randomUUID().toString();
-		data.put(id, transfer);
+		data.put(transfer.transferNumber(), transfer);
 	}
 
 	@Override
-	public Transfer findById(String id) {
-		return data.get(id);
+	public Optional<Transfer> findById(UUID id) {
+		return Optional.ofNullable(data.get(id));
 	}
 
 	@Override
@@ -25,7 +25,7 @@ class InMemoryTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public boolean existsById(String id) {
+	public boolean existsById(UUID id) {
 		return data.containsKey(id);
 	}
 

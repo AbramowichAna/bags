@@ -93,12 +93,4 @@ public class TransferTest {
 		assertEquals(initialToBalance + transferAmount.amount(), toWallet.getBalance().amount());
 	}
 
-	@Test
-	void testTransferEquality_008() {
-		Transfer transfer1 = new Transfer(fromWallet, toWallet, validAmount, timestamp);
-		Transfer transfer2 = new Transfer(fromWallet, toWallet, validAmount, timestamp);
-
-		assertEquals(transfer1, transfer2);
-		assertEquals(transfer1.hashCode(), transfer2.hashCode());
-	}
 }
