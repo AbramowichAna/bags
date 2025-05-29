@@ -1,13 +1,12 @@
 package edu.aseca.bags.application;
 
 import edu.aseca.bags.domain.transaction.Transfer;
+import edu.aseca.bags.domain.transaction.TransferNumber;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface TransferRepository {
 	void save(Transfer transfer);
 
-	Optional<Transfer> findByTransferNumber(UUID id);
+	Optional<Transfer> findByTransferNumber(TransferNumber id);
 
-	boolean existsByTransferNumber(UUID id);
 }

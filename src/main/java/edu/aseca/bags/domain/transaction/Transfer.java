@@ -6,10 +6,11 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-public record Transfer(UUID transferNumber, Wallet fromWallet, Wallet toWallet, Money amount, Instant timestamp) {
+public record Transfer(TransferNumber transferNumber, Wallet fromWallet, Wallet toWallet, Money amount,
+		Instant timestamp) {
 
 	public Transfer(Wallet fromWallet, Wallet toWallet, Money amount, Instant timestamp) {
-		this(UUID.randomUUID(), fromWallet, toWallet, amount, timestamp);
+		this(TransferNumber.random(), fromWallet, toWallet, amount, timestamp);
 	}
 
 	public Transfer {

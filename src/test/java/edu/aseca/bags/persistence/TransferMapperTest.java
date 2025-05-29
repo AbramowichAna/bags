@@ -7,6 +7,7 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Transfer;
+import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.domain.wallet.Wallet;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,7 +29,7 @@ public class TransferMapperTest {
 		Money amount = new Money(100.0);
 		Instant timestamp = Instant.now();
 		UUID transferNumber = UUID.randomUUID();
-		Transfer transfer = new Transfer(transferNumber, fromWallet, toWallet, amount, timestamp);
+		Transfer transfer = new Transfer(TransferNumber.of(transferNumber), fromWallet, toWallet, amount, timestamp);
 
 		TransferEntity entity = TransferMapper.toEntity(transfer);
 
@@ -54,7 +55,7 @@ public class TransferMapperTest {
 
 		Transfer transfer = TransferMapper.toDomain(transferEntity);
 
-		assertEquals(transferNumber, transfer.transferNumber());
+		assertEquals(TransferNumber.of(transferNumber), transfer.transferNumber());
 		assertEquals("source@example.com", transfer.fromWallet().getEmail().address());
 		assertEquals("sourcepass", transfer.fromWallet().getPassword().hash());
 		assertEquals(500.0, transfer.fromWallet().getBalance().amount());

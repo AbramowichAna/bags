@@ -2,6 +2,7 @@ package edu.aseca.bags.persistence;
 
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Transfer;
+import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.domain.wallet.Wallet;
 
 public class TransferMapper {
@@ -16,7 +17,7 @@ public class TransferMapper {
 
 		TransferEntity entity = new TransferEntity(fromWalletEntity, toWalletEntity, transfer.amount().amount(),
 				transfer.timestamp());
-		entity.setTransferNumber(transfer.transferNumber());
+		entity.setTransferNumber(transfer.transferNumber().value());
 		return entity;
 	}
 
@@ -28,7 +29,7 @@ public class TransferMapper {
 		Wallet fromWallet = WalletMapper.toDomain(entity.getFromWallet());
 		Wallet toWallet = WalletMapper.toDomain(entity.getToWallet());
 
-		return new Transfer(entity.getTransferNumber(), fromWallet, toWallet, new Money(entity.getAmount()),
-				entity.getTimestamp());
+		return new Transfer(TransferNumber.of(entity.getTransferNumber()), fromWallet, toWallet,
+				new Money(entity.getAmount()), entity.getTimestamp());
 	}
 }

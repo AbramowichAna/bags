@@ -9,6 +9,7 @@ import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.wallet.Wallet;
 import java.time.Instant;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +42,7 @@ public class TransferTest {
 		assertEquals(toWallet, transfer.toWallet());
 		assertEquals(validAmount, transfer.amount());
 		assertEquals(timestamp, transfer.timestamp());
+		assertNotNull(transfer.transferNumber());
 	}
 
 	@Test
@@ -50,7 +52,6 @@ public class TransferTest {
 
 	@Test
 	void testTransferWithNullToWallet_003() {
-		// Then
 		assertThrows(NullPointerException.class, () -> new Transfer(fromWallet, null, validAmount, timestamp));
 	}
 
@@ -62,5 +63,17 @@ public class TransferTest {
 	@Test
 	void testTransferWithNullTimestamp_005() {
 		assertThrows(NullPointerException.class, () -> new Transfer(fromWallet, toWallet, validAmount, null));
+	}
+
+	@Test
+	void shouldCreateTransferWithValidTransferNumber_006() {
+		UUID uuid = UUID.randomUUID();
+		TransferNumber number = TransferNumber.of(uuid);
+		Transfer transfer = new Transfer(number, fromWallet, toWallet, validAmount, timestamp);
+		assertEquals(number, transfer.transferNumber());
+		assertEquals(transfer.fromWallet(), fromWallet);
+		assertEquals(transfer.toWallet(), toWallet);
+		assertEquals(transfer.amount(), validAmount);
+		assertEquals(transfer.timestamp(), timestamp);
 	}
 }

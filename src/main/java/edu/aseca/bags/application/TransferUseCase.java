@@ -12,10 +12,13 @@ import java.time.Instant;
 public class TransferUseCase {
 	private final WalletRepository walletRepository;
 	private final TransferRepository transferRepository;
+	private final TransferNumberGenerator transferNumberGenerator;
 
-	public TransferUseCase(WalletRepository walletRepository, TransferRepository transferRepository) {
+	public TransferUseCase(WalletRepository walletRepository, TransferRepository transferRepository,
+			TransferNumberGenerator transferNumberGenerator) {
 		this.walletRepository = walletRepository;
 		this.transferRepository = transferRepository;
+		this.transferNumberGenerator = transferNumberGenerator;
 	}
 
 	public Transfer execute(Email fromEmail, Email toEmail, Money amount)
@@ -37,7 +40,8 @@ public class TransferUseCase {
 			walletRepository.save(fromWallet);
 			walletRepository.save(toWallet);
 
-			Transfer transfer = new Transfer(fromWallet, toWallet, amount, Instant.now());
+			Transfer transfer = new Transfer(transferNumberGenerator.generate(), fromWallet, toWallet, amount,
+					Instant.now());
 			transferRepository.save(transfer);
 
 			return transfer;

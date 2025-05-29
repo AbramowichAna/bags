@@ -6,6 +6,7 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Transfer;
+import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.domain.wallet.Wallet;
 import java.time.Instant;
 import java.util.Optional;
@@ -59,7 +60,7 @@ public class JpaTransferRepositoryTest {
 	@Test
 	void findByIdReturnsEmptyWhenTransferDoesNotExist_002() {
 		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository);
-		Optional<Transfer> transfer = transferRepository.findByTransferNumber(UUID.randomUUID());
+		Optional<Transfer> transfer = transferRepository.findByTransferNumber(TransferNumber.of(UUID.randomUUID()));
 		assertFalse(transfer.isPresent(), "Should return empty when transfer does not exist");
 	}
 }

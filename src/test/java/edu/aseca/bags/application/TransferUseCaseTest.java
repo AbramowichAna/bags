@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Transfer;
+import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.domain.wallet.Wallet;
 import edu.aseca.bags.exception.InsufficientFundsException;
 import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.testutil.TestWalletFactory;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,11 +22,16 @@ public class TransferUseCaseTest {
 
 	private TransferRepository transferRepository;
 
+	private final UUID knownUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+	private final TransferNumber knownTransferNumber = TransferNumber.of(knownUuid);
+
 	@BeforeEach
 	void setUp() {
 		walletRepository = new InMemoryWalletRepository();
 		transferRepository = new InMemoryTransferRepository();
-		transferUseCase = new TransferUseCase(walletRepository, transferRepository);
+		var gen = new KnownTransferNumberGenerator(knownTransferNumber);
+		transferUseCase = new TransferUseCase(walletRepository, transferRepository, gen);
 	}
 
 	@Test
@@ -49,6 +56,11 @@ public class TransferUseCaseTest {
 
 		assertEquals(Money.of(200), updatedFromWallet.getBalance());
 		assertEquals(Money.of(400), updatedToWallet.getBalance());
+
+		Transfer foundTransfer = assertDoesNotThrow(() -> transferRepository.findByTransferNumber(knownTransferNumber)
+				.orElseThrow(() -> new RuntimeException("Transfer not found in repository")));
+
+		assertEquals(transfer, foundTransfer);
 	}
 
 	@Test

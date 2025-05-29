@@ -17,8 +17,9 @@ public class UseCaseConfig {
 	}
 
 	@Bean
-	public TransferUseCase transferUseCase(WalletRepository walletRepository, TransferRepository transferRepository) {
-		return new TransferUseCase(walletRepository, transferRepository);
+	public TransferUseCase transferUseCase(WalletRepository walletRepository, TransferRepository transferRepository,
+			TransferNumberGenerator transferNumberGenerator) {
+		return new TransferUseCase(walletRepository, transferRepository, transferNumberGenerator);
 	}
 
 	@Bean
