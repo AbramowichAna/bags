@@ -79,4 +79,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/aniabramowich/bags:${{ env.VERSION }}
+          tags: ghcr.io/abramowichana/bags:${{ env.VERSION }}
