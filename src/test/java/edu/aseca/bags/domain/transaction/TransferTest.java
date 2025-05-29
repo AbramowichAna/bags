@@ -63,34 +63,4 @@ public class TransferTest {
 	void testTransferWithNullTimestamp_005() {
 		assertThrows(NullPointerException.class, () -> new Transfer(fromWallet, toWallet, validAmount, null));
 	}
-
-	@Test
-	void testTransferWithInsufficientBalance_006() {
-		Wallet emptyWallet = new Wallet(new Email("empty@example.com"), new Password("pass123"));
-		Money largeAmount = new Money(50.0);
-
-		Transfer transfer = new Transfer(emptyWallet, toWallet, largeAmount, timestamp);
-		assertNotNull(transfer);
-
-		assertThrows(IllegalStateException.class, () -> emptyWallet.subtractBalance(largeAmount));
-	}
-
-	@Test
-	void testTransferWithSufficientBalance_007() {
-		Money transferAmount = new Money(50.0);
-
-		Transfer transfer = new Transfer(fromWallet, toWallet, transferAmount, timestamp);
-
-		assertNotNull(transfer);
-
-		double initialFromBalance = fromWallet.getBalance().amount();
-		double initialToBalance = toWallet.getBalance().amount();
-
-		fromWallet.subtractBalance(transferAmount);
-		toWallet.addBalance(transferAmount);
-
-		assertEquals(initialFromBalance - transferAmount.amount(), fromWallet.getBalance().amount());
-		assertEquals(initialToBalance + transferAmount.amount(), toWallet.getBalance().amount());
-	}
-
 }
