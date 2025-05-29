@@ -61,18 +61,21 @@ public class GlobalExceptionHandler {
 				request.getRequestURI(), null);
 	}
 
-	public record ApiErrorResponse(String title, int status, String detail, String instance,
-			Map<String, String> errors) {
-	}
-
 	@ExceptionHandler(InsufficientFundsException.class)
-	public ResponseEntity<?> handleInsufficientFundsException(InsufficientFundsException e) {
-		return ResponseEntity.status(400).build();
+	public ResponseEntity<?> handleInsufficientFundsException(InsufficientFundsException e,
+			HttpServletRequest request) {
+		return buildErrorResponse("Insufficient funds", HttpStatus.BAD_REQUEST, e.getMessage(), request.getRequestURI(),
+				null);
 	}
 
 	@ExceptionHandler(WalletNotFoundException.class)
-	public ResponseEntity<?> handleWalletNotFoundException(WalletNotFoundException e) {
-		return ResponseEntity.status(404).build();
+	public ResponseEntity<?> handleWalletNotFoundException(WalletNotFoundException e, HttpServletRequest request) {
+		return buildErrorResponse("Wallet not found", HttpStatus.NOT_FOUND, e.getMessage(), request.getRequestURI(),
+				null);
+	}
+
+	public record ApiErrorResponse(String title, int status, String detail, String instance,
+			Map<String, String> errors) {
 	}
 
 	private static ApiErrorResponse authError(HttpServletRequest request, String message) {
