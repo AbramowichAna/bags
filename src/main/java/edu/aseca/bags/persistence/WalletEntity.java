@@ -3,6 +3,7 @@ package edu.aseca.bags.persistence;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -17,6 +18,7 @@ public class WalletEntity {
 
 	private String password;
 
+	@Setter
 	private BigDecimal balance;
 
 	protected WalletEntity() {

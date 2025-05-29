@@ -19,7 +19,9 @@ public class GlobalExceptionHandler {
 	// Not developing correctly would get here
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, HttpServletRequest req) {
-		return buildErrorResponse("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(),
+		//Change for explicit logging
+		ex.printStackTrace(); // Log the exception stack trace for debugging
+		return buildErrorResponse("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, "Error",
 				req.getRequestURI(), null);
 	}
 

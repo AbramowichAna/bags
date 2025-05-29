@@ -3,6 +3,7 @@ package edu.aseca.bags.persistence;
 import edu.aseca.bags.application.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.wallet.Wallet;
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
@@ -17,7 +18,13 @@ public class JpaWalletRepository implements WalletRepository {
 
 	@Override
 	public void save(Wallet wallet) {
-		WalletEntity entity = WalletMapper.toEntity(wallet);
+		Optional<WalletEntity> existingEntityOpt = jpaRepository.findByEmail(wallet.getEmail().address());
+
+		WalletEntity entity = existingEntityOpt.map(existing -> {
+			existing.setBalance(BigDecimal.valueOf(wallet.getBalance().amount()));
+			return existing;
+		}).orElseGet(() -> WalletMapper.toEntity(wallet));
+
 		jpaRepository.save(entity);
 	}
 

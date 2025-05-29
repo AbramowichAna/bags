@@ -31,14 +31,15 @@ public class TransferMapperTest {
 		UUID transferNumber = UUID.randomUUID();
 		Transfer transfer = new Transfer(TransferNumber.of(transferNumber), fromWallet, toWallet, amount, timestamp);
 
-		TransferEntity entity = TransferMapper.toEntity(transfer);
+		TransferEntity entity = TransferMapper.toEntity(transfer,
+				WalletMapper.toEntity(fromWallet), WalletMapper.toEntity(toWallet));
 
 		assertEquals(transferNumber, entity.getTransferNumber());
 		assertEquals("from@example.com", entity.getFromWallet().getEmail());
 		assertEquals("frompass", entity.getFromWallet().getPassword());
 		assertEquals("to@example.com", entity.getToWallet().getEmail());
 		assertEquals("topass", entity.getToWallet().getPassword());
-		assertEquals(100.0, entity.getAmount());
+		assertEquals(100.0, entity.getAmount().doubleValue());
 		assertEquals(timestamp, entity.getTimestamp());
 	}
 
@@ -50,7 +51,7 @@ public class TransferMapperTest {
 
 		Instant timestamp = Instant.now();
 		UUID transferNumber = UUID.randomUUID();
-		TransferEntity transferEntity = new TransferEntity(fromWalletEntity, toWalletEntity, 150.0, timestamp);
+		TransferEntity transferEntity = new TransferEntity(fromWalletEntity, toWalletEntity, BigDecimal.valueOf(150.0), timestamp);
 		transferEntity.setTransferNumber(transferNumber); // Explicitly set the transferNumber
 
 		Transfer transfer = TransferMapper.toDomain(transferEntity);
@@ -70,7 +71,7 @@ public class TransferMapperTest {
 
 	@Test
 	void nullTransferShouldMapToNull_003() {
-		assertNull(TransferMapper.toEntity(null));
+		assertNull(TransferMapper.toEntity(null, null, null));
 		assertNull(TransferMapper.toDomain(null));
 	}
 }

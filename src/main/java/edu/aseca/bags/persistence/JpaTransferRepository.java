@@ -10,14 +10,22 @@ import org.springframework.stereotype.Repository;
 public class JpaTransferRepository implements TransferRepository {
 
 	private final SpringTransferJpaRepository jpaRepository;
+	private final SpringWalletJpaRepository walletJpaRepository;
 
-	public JpaTransferRepository(SpringTransferJpaRepository jpaRepository) {
+	public JpaTransferRepository(SpringTransferJpaRepository jpaRepository,
+								 SpringWalletJpaRepository walletJpaRepository) {
 		this.jpaRepository = jpaRepository;
+		this.walletJpaRepository = walletJpaRepository;
 	}
 
 	@Override
 	public void save(Transfer transfer) {
-		TransferEntity entity = TransferMapper.toEntity(transfer);
+		WalletEntity fromWalletEntity = walletJpaRepository.findByEmail(transfer.fromWallet().getEmail().address())
+				.orElseThrow(() -> new IllegalStateException("From wallet not found"));
+		WalletEntity toWalletEntity = walletJpaRepository.findByEmail(transfer.toWallet().getEmail().address())
+				.orElseThrow(() -> new IllegalStateException("To wallet not found"));
+
+		TransferEntity entity = TransferMapper.toEntity(transfer, fromWalletEntity, toWalletEntity);
 		jpaRepository.save(entity);
 	}
 

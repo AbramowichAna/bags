@@ -1,6 +1,7 @@
 package edu.aseca.bags.persistence;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -14,21 +15,21 @@ public class TransferEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	UUID id;
+	private UUID id;
 
 	@Column(nullable = false, unique = true)
 	private UUID transferNumber;
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "from_wallet_id")
 	private WalletEntity fromWallet;
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "to_wallet_id")
 	private WalletEntity toWallet;
 
 	@Column(nullable = false)
-	private Double amount;
+	private BigDecimal amount;
 
 	@Column(nullable = false)
 	private Instant timestamp;
@@ -36,7 +37,7 @@ public class TransferEntity {
 	public TransferEntity() {
 	}
 
-	public TransferEntity(WalletEntity fromWallet, WalletEntity toWallet, Double amount, Instant timestamp) {
+	public TransferEntity(WalletEntity fromWallet, WalletEntity toWallet, BigDecimal amount, Instant timestamp) {
 		this.transferNumber = UUID.randomUUID();
 		this.fromWallet = fromWallet;
 		this.toWallet = toWallet;
