@@ -1,13 +1,10 @@
 package edu.aseca.bags.domain.wallet;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
-import edu.aseca.bags.domain.wallet.Wallet;
 import org.junit.jupiter.api.Test;
 
 /*
@@ -84,4 +81,12 @@ class WalletTest {
 		assertThrows(IllegalStateException.class, () -> wallet.subtractBalance(Money.of(20)));
 	}
 
+	@Test
+	public void shouldReturnTrueWhenWalletHasSufficientBalance_007() {
+		Wallet wallet = new Wallet(validEmail, validPassword);
+		wallet.addBalance(Money.of(100));
+
+		assertTrue(wallet.hasSufficientBalance(Money.of(50)), "Should have sufficient balance");
+		assertFalse(wallet.hasSufficientBalance(Money.of(150)), "Should not have sufficient balance");
+	}
 }

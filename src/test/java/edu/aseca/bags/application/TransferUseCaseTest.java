@@ -1,5 +1,6 @@
 package edu.aseca.bags.application;
 
+import static edu.aseca.bags.testutil.TestWalletFactory.createAndSave;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.domain.email.Email;
@@ -25,6 +26,8 @@ public class TransferUseCaseTest {
 	private final UUID knownUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
 	private final TransferNumber knownTransferNumber = TransferNumber.of(knownUuid);
+	private static final String FROM_EMAIL = "from@example.com";
+	private static final String TO_EMAIL = "to@example.com";
 
 	@BeforeEach
 	void setUp() {
@@ -36,8 +39,9 @@ public class TransferUseCaseTest {
 
 	@Test
 	void successfulTransfer_001() {
-		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123", 500);
-		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, "to@example.com", "password456", 100);
+
+		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, FROM_EMAIL, "password123", 500);
+		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, TO_EMAIL, "password456", 100);
 		Money transferAmount = Money.of(300);
 
 		Email fromEmail = fromWallet.getEmail();
@@ -45,22 +49,12 @@ public class TransferUseCaseTest {
 
 		Transfer transfer = assertDoesNotThrow(() -> transferUseCase.execute(fromEmail, toEmail, transferAmount));
 
-		assertNotNull(transfer);
-		assertEquals(fromWallet, transfer.fromWallet());
-		assertEquals(toWallet, transfer.toWallet());
-		assertEquals(transferAmount, transfer.amount());
-		assertNotNull(transfer.timestamp());
+		assertTransferDetails(transfer, fromWallet, toWallet, transferAmount);
 
-		Wallet updatedFromWallet = walletRepository.findByEmail(fromEmail).orElseThrow();
-		Wallet updatedToWallet = walletRepository.findByEmail(toEmail).orElseThrow();
+		assertBalances(fromEmail, Money.of(200));
+		assertBalances(toEmail, Money.of(400));
 
-		assertEquals(Money.of(200), updatedFromWallet.getBalance());
-		assertEquals(Money.of(400), updatedToWallet.getBalance());
-
-		Transfer foundTransfer = assertDoesNotThrow(() -> transferRepository.findByTransferNumber(knownTransferNumber)
-				.orElseThrow(() -> new RuntimeException("Transfer not found in repository")));
-
-		assertEquals(transfer, foundTransfer);
+		assertTransferStored(transfer);
 	}
 
 	@Test
@@ -68,9 +62,9 @@ public class TransferUseCaseTest {
 		Money initialFromBalance = new Money(100);
 		Money initialToBalance = new Money(50);
 
-		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123",
+		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, FROM_EMAIL, "password123",
 				initialFromBalance.amount());
-		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, "to@example.com", "password456",
+		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, TO_EMAIL, "password456",
 				initialToBalance.amount());
 
 		Email fromEmail = fromWallet.getEmail();
@@ -81,18 +75,15 @@ public class TransferUseCaseTest {
 		assertThrows(InsufficientFundsException.class,
 				() -> transferUseCase.execute(fromEmail, toEmail, transferAmount));
 
-		Wallet unchangedFromWallet = walletRepository.findByEmail(fromEmail).orElseThrow();
-		Wallet unchangedToWallet = walletRepository.findByEmail(toEmail).orElseThrow();
-
-		assertEquals(initialFromBalance, unchangedFromWallet.getBalance());
-		assertEquals(initialToBalance, unchangedToWallet.getBalance());
+		assertBalances(fromEmail, initialFromBalance);
+		assertBalances(toEmail, initialToBalance);
 	}
 
 	@Test
 	void throwsExceptionWhenFromWalletDoesNotExist_003() {
 		Email nonExistentEmail = new Email("nonexistent@example.com");
 
-		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, "to@example.com", "password456", 50);
+		Wallet toWallet = TestWalletFactory.createAndSave(walletRepository, TO_EMAIL, "password456", 50);
 		Email toEmail = toWallet.getEmail();
 
 		Money transferAmount = Money.of(100);
@@ -103,7 +94,7 @@ public class TransferUseCaseTest {
 
 	@Test
 	void throwsExceptionWhenToWalletDoesNotExist_004() {
-		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123", 200);
+		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, FROM_EMAIL, "password123", 200);
 		Email fromEmail = fromWallet.getEmail();
 
 		Email nonExistentEmail = new Email("nonexistent@example.com");
@@ -112,15 +103,47 @@ public class TransferUseCaseTest {
 		assertThrows(WalletNotFoundException.class,
 				() -> transferUseCase.execute(fromEmail, nonExistentEmail, transferAmount));
 
-		Wallet unchangedFromWallet = walletRepository.findByEmail(fromEmail).orElseThrow();
-		assertEquals(Money.of(200), unchangedFromWallet.getBalance());
+		assertBalances(fromEmail, Money.of(200));
 	}
 
 	@Test
 	void throwsExceptionWhenOneWalletTriesToTransferToItself_005() {
-		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, "from@example.com", "password123", 200);
+		Wallet fromWallet = TestWalletFactory.createAndSave(walletRepository, FROM_EMAIL, "password123", 200);
 
 		assertThrows(InvalidTransferException.class,
 				() -> transferUseCase.execute(fromWallet.getEmail(), fromWallet.getEmail(), Money.of(100)));
+	}
+
+	@Test
+	void throwsExceptionWhenTransferAmountIsZero_006() {
+		Wallet fromWallet = createAndSave(walletRepository, FROM_EMAIL, "password123", 200);
+		Wallet toWallet = createAndSave(walletRepository, TO_EMAIL, "password456", 100);
+
+		Email fromEmail = fromWallet.getEmail();
+		Email toEmail = toWallet.getEmail();
+
+		assertThrows(InvalidTransferException.class, () -> transferUseCase.execute(fromEmail, toEmail, Money.of(0)));
+	}
+
+	private void assertBalances(Email fromEmail, Money amount) {
+
+		Wallet updatedFromWallet = walletRepository.findByEmail(fromEmail).orElseThrow();
+		assertEquals(amount, updatedFromWallet.getBalance());
+	}
+
+	private void assertTransferStored(Transfer transfer) {
+		Transfer foundTransfer = assertDoesNotThrow(() -> transferRepository.findByTransferNumber(knownTransferNumber)
+				.orElseThrow(() -> new RuntimeException("Transfer not found in repository")));
+
+		assertEquals(transfer, foundTransfer);
+	}
+
+	private static void assertTransferDetails(Transfer transfer, Wallet fromWallet, Wallet toWallet,
+			Money transferAmount) {
+		assertNotNull(transfer);
+		assertEquals(fromWallet, transfer.fromWallet());
+		assertEquals(toWallet, transfer.toWallet());
+		assertEquals(transferAmount, transfer.amount());
+		assertNotNull(transfer.timestamp());
 	}
 }

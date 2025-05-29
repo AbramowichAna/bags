@@ -24,29 +24,38 @@ public class TransferUseCase {
 	public Transfer execute(Email fromEmail, Email toEmail, Money amount)
 			throws WalletNotFoundException, InsufficientFundsException, InvalidTransferException {
 
-		boolean triesToTransferItself = fromEmail.equals(toEmail);
-
-		if (triesToTransferItself) {
-			throw new InvalidTransferException("Cannot transfer to the same wallet");
-		}
+		validateTransfer(fromEmail, toEmail, amount);
 
 		Wallet fromWallet = walletRepository.findByEmail(fromEmail).orElseThrow(WalletNotFoundException::new);
 		Wallet toWallet = walletRepository.findByEmail(toEmail).orElseThrow(WalletNotFoundException::new);
 
-		try {
-			fromWallet.subtractBalance(amount);
-			toWallet.addBalance(amount);
-
-			walletRepository.save(fromWallet);
-			walletRepository.save(toWallet);
-
-			Transfer transfer = new Transfer(transferNumberGenerator.generate(), fromWallet, toWallet, amount,
-					Instant.now());
-			transferRepository.save(transfer);
-
-			return transfer;
-		} catch (IllegalStateException e) {
+		if (!fromWallet.hasSufficientBalance(amount)) {
 			throw new InsufficientFundsException();
 		}
+
+		fromWallet.subtractBalance(amount);
+		toWallet.addBalance(amount);
+
+		walletRepository.save(fromWallet);
+		walletRepository.save(toWallet);
+
+		Transfer transfer = new Transfer(transferNumberGenerator.generate(), fromWallet, toWallet, amount,
+				Instant.now());
+
+		transferRepository.save(transfer);
+		return transfer;
 	}
+
+	private void validateTransfer(Email fromEmail, Email toEmail, Money amount) throws InvalidTransferException {
+		if (fromEmail == null || toEmail == null || amount == null) {
+			throw new InvalidTransferException("Sender, receiver, and amount must not be null");
+		}
+		if (fromEmail.equals(toEmail)) {
+			throw new InvalidTransferException("Cannot transfer to the same wallet");
+		}
+		if (amount.amount() == 0) {
+			throw new InvalidTransferException("Transfer amount must be greater than zero");
+		}
+	}
+
 }
