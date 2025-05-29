@@ -10,10 +10,18 @@ import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.security.SecurityService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/transfer")
@@ -39,6 +47,16 @@ public class TransferController {
 				new Money(request.amount()));
 
 		return ResponseEntity.ok(new TransferResponse(transfer));
+	}
+
+	@GetMapping
+	public ResponseEntity<Page<TransferResponse>> getTransfers(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) throws WalletNotFoundException {
+		String email = securityService.getMail();
+		Pageable pageable = PageRequest.of(page, size);
+		Page<Transfer> transfers = transferUseCase.getTransfers(new Email(email), pageable);
+		Page<TransferResponse> response = transfers.map(TransferResponse::new);
+		return ResponseEntity.ok(response);
 	}
 
 	public record TransferRequest(@NotNull String toEmail, @NotNull Double amount) {

@@ -8,6 +8,9 @@ import edu.aseca.bags.exception.InsufficientFundsException;
 import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.time.Instant;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public class TransferUseCase {
 	private final WalletRepository walletRepository;
@@ -48,5 +51,16 @@ public class TransferUseCase {
 		} catch (IllegalStateException e) {
 			throw new InsufficientFundsException();
 		}
+	}
+
+	public Page<Transfer> getTransfers(Email email, Pageable pageable) throws WalletNotFoundException {
+
+		Optional<Wallet> optionalWallet = walletRepository.findByEmail(email);
+		if (optionalWallet.isEmpty()) {
+			throw new WalletNotFoundException();
+		}
+
+		Wallet wallet = optionalWallet.get();
+		return transferRepository.findByFromWalletOrToWallet(wallet, wallet, pageable);
 	}
 }

@@ -13,11 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -110,6 +106,22 @@ public class TransferIntegrationTest {
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
+	}
+
+	@Test
+	void shouldGetTransferHistory_005() {
+
+		springWalletJpaRepository.save(new WalletEntity("wallet1@gmail.com", "hash", BigDecimal.valueOf(100)));
+		springWalletJpaRepository.save(new WalletEntity("wallet2@gmail.com", "hash", BigDecimal.valueOf(50)));
+
+		TransferRequest request = new TransferRequest("wallet2@gmail.com", 100.0);
+		var postEntity = new HttpEntity<>(request, jsonHeadersWithAuth());
+
+		restTemplate.postForEntity(getUrl(), postEntity, Void.class);
+
+		var getEntity = new HttpEntity<>(jsonHeadersWithAuth());
+		ResponseEntity<Void> response = restTemplate.exchange(getUrl(), HttpMethod.GET, getEntity, Void.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
 	}
 
 }
