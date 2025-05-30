@@ -32,4 +32,7 @@ public class Wallet {
 		}
 	}
 
+	public boolean hasSufficientBalance(Money amount) {
+		return this.balance.amount() >= amount.amount();
+	}
 }
