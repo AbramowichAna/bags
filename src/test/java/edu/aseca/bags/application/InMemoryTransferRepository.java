@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 class InMemoryTransferRepository implements TransferRepository {
 	private final Map<UUID, Transfer> data = new HashMap<>();
@@ -27,17 +24,18 @@ class InMemoryTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public Page<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, Pageable pageable) {
+	public List<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, int page, int size) {
 		List<Transfer> filteredTransfers = data.values().stream()
 				.filter(transfer -> transfer.fromWallet().equals(fromWallet) || transfer.toWallet().equals(toWallet))
 				.collect(Collectors.toList());
 
-		int start = (int) pageable.getOffset();
-		int end = Math.min(start + pageable.getPageSize(), filteredTransfers.size());
+		int start = page * size;
+		int end = Math.min(start + size, filteredTransfers.size());
+		if (start > end) {
+			return List.of();
+		}
 
-		List<Transfer> paginatedTransfers = filteredTransfers.subList(start, end);
-
-		return new PageImpl<>(paginatedTransfers, pageable, filteredTransfers.size());
+		return filteredTransfers.subList(start, end);
 	}
 
 	public int count() {

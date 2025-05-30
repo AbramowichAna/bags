@@ -9,13 +9,12 @@ import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.domain.wallet.Wallet;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
@@ -70,8 +69,7 @@ public class JpaTransferRepositoryTest {
 
 	@Test
 	void findAllTransfersOfaWalletReturnsCorrectTransfers_003() {
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
-				this.walletRepository);
+		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository, this.walletRepository);
 		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
 
 		Wallet wallet1 = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
@@ -86,20 +84,18 @@ public class JpaTransferRepositoryTest {
 		transferRepository.save(transfer1);
 		transferRepository.save(transfer2);
 
-		Pageable pageable = Pageable.unpaged();
-		Page<Transfer> transfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, pageable);
+		int page = 0;
+		int size = 10;
+		List<Transfer> transfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, page, size);
 
-		assertEquals(2, transfers.getTotalElements(), "Should retrieve all transfers associated with wallet1");
-		assertTrue(transfers.getContent().stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())),
-				"Transfer1 should be included");
-		assertTrue(transfers.getContent().stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())),
-				"Transfer2 should be included");
+		assertEquals(2, transfers.size(), "Should retrieve all transfers associated with wallet1");
+		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())), "Transfer1 should be included");
+		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())), "Transfer2 should be included");
 	}
 
 	@Test
 	void findTransfersWithPagination_004() {
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
-				this.walletRepository);
+		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository, this.walletRepository);
 		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
 
 		Wallet wallet1 = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
@@ -116,16 +112,20 @@ public class JpaTransferRepositoryTest {
 		transferRepository.save(transfer2);
 		transferRepository.save(transfer3);
 
-		Pageable pageable = Pageable.ofSize(2).withPage(0);
-		Page<Transfer> transfersPage = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, pageable);
+		int page = 0;
+		int size = 2;
+		List<Transfer> transfersPage = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, page, size);
 
-		assertEquals(2, transfersPage.getContent().size(), "Should return 2 transfers in the first page");
-		assertEquals(3, transfersPage.getTotalElements(), "Total elements should be 3");
-		assertEquals(2, transfersPage.getTotalPages(), "Total pages should be 2");
-		assertTrue(transfersPage.getContent().stream()
-				.anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())), "Transfer1 should be included");
-		assertTrue(transfersPage.getContent().stream()
-				.anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())), "Transfer2 should be included");
+		assertEquals(2, transfersPage.size(), "Should return 2 transfers in the first page");
+
+		List<Transfer> allTransfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, 0, 10);
+		assertEquals(3, allTransfers.size(), "Total elements should be 3");
+
+		int totalPages = (int) Math.ceil((double) allTransfers.size() / size);
+		assertEquals(2, totalPages, "Total pages should be 2");
+
+		assertTrue(transfersPage.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())), "Transfer1 should be included");
+		assertTrue(transfersPage.stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())), "Transfer2 should be included");
 	}
 
 }
