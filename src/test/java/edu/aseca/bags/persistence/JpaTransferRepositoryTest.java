@@ -69,7 +69,8 @@ public class JpaTransferRepositoryTest {
 
 	@Test
 	void findAllTransfersOfaWalletReturnsCorrectTransfers_003() {
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository, this.walletRepository);
+		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
+				this.walletRepository);
 		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
 
 		Wallet wallet1 = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
@@ -89,13 +90,16 @@ public class JpaTransferRepositoryTest {
 		List<Transfer> transfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, page, size);
 
 		assertEquals(2, transfers.size(), "Should retrieve all transfers associated with wallet1");
-		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())), "Transfer1 should be included");
-		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())), "Transfer2 should be included");
+		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())),
+				"Transfer1 should be included");
+		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())),
+				"Transfer2 should be included");
 	}
 
 	@Test
 	void findTransfersWithPagination_004() {
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository, this.walletRepository);
+		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
+				this.walletRepository);
 		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
 
 		Wallet wallet1 = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
@@ -124,8 +128,10 @@ public class JpaTransferRepositoryTest {
 		int totalPages = (int) Math.ceil((double) allTransfers.size() / size);
 		assertEquals(2, totalPages, "Total pages should be 2");
 
-		assertTrue(transfersPage.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())), "Transfer1 should be included");
-		assertTrue(transfersPage.stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())), "Transfer2 should be included");
+		assertTrue(transfersPage.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())),
+				"Transfer1 should be included");
+		assertTrue(transfersPage.stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())),
+				"Transfer2 should be included");
 	}
 
 }
