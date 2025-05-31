@@ -68,24 +68,15 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex,
-																	  HttpServletRequest request) {
-		Map<String, String> validationErrors = ex.getConstraintViolations().stream()
-				.collect(Collectors.toMap(
-						v -> {
-							String path = v.getPropertyPath().toString();
-							return path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
-						},
-						ConstraintViolation::getMessage,
-						(existing, replacement) -> existing
-				));
+			HttpServletRequest request) {
+		Map<String, String> validationErrors = ex.getConstraintViolations().stream().collect(Collectors.toMap(v -> {
+			String path = v.getPropertyPath().toString();
+			return path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+		}, ConstraintViolation::getMessage, (existing, replacement) -> existing));
 
-		return buildErrorResponse("Validation error",
-				HttpStatus.BAD_REQUEST,
-				"Some parameters are invalid.",
-				request.getRequestURI(),
-				validationErrors);
+		return buildErrorResponse("Validation error", HttpStatus.BAD_REQUEST, "Some parameters are invalid.",
+				request.getRequestURI(), validationErrors);
 	}
-
 
 	@ExceptionHandler(BadCredentialsException.class)
 	public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
@@ -156,6 +147,5 @@ public class GlobalExceptionHandler {
 		slr.setDefaultLocale(Locale.ENGLISH);
 		return slr;
 	}
-
 
 }

@@ -58,7 +58,7 @@ public class TransferController {
 
 	@GetMapping
 	public ResponseEntity<Page<TransferResponse>> getTransfers(@RequestParam(defaultValue = "0") @Min(0) int page,
-															   @RequestParam(defaultValue = "10") @Positive int size) throws WalletNotFoundException {
+			@RequestParam(defaultValue = "10") @Positive int size) throws WalletNotFoundException {
 		String email = securityService.getMail();
 		List<Transfer> transfers = transferQuery.getTransfers(new Email(email), page, size);
 		List<TransferResponse> responses = transfers.stream().map(TransferResponse::new).toList();

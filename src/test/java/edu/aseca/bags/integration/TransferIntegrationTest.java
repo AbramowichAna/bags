@@ -196,10 +196,9 @@ public class TransferIntegrationTest {
 		createWallet("wallet1@gmail.com", 100);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferController.TransferResponse>> response = restTemplate.exchange(
-				getUrl() + "?page=0&size=10", HttpMethod.GET, entity,
-				new ParameterizedTypeReference<>() {}
-		);
+		ResponseEntity<PageResponse<TransferController.TransferResponse>> response = restTemplate
+				.exchange(getUrl() + "?page=0&size=10", HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
+				});
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
@@ -211,9 +210,8 @@ public class TransferIntegrationTest {
 		createWallet("wallet1@gmail.com", 100);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<String> response = restTemplate.exchange(
-				getUrl() + "?page=-1&size=10", HttpMethod.GET, entity, String.class
-		);
+		ResponseEntity<String> response = restTemplate.exchange(getUrl() + "?page=-1&size=10", HttpMethod.GET, entity,
+				String.class);
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
@@ -223,9 +221,8 @@ public class TransferIntegrationTest {
 		createWallet("wallet1@gmail.com", 100);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<String> response = restTemplate.exchange(
-				getUrl() + "?page=0&size=-5", HttpMethod.GET, entity, String.class
-		);
+		ResponseEntity<String> response = restTemplate.exchange(getUrl() + "?page=0&size=-5", HttpMethod.GET, entity,
+				String.class);
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
@@ -235,9 +232,8 @@ public class TransferIntegrationTest {
 		createWallet("wallet1@gmail.com", 100);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<String> response = restTemplate.exchange(
-				getUrl() + "?page=0&size=0", HttpMethod.GET, entity, String.class
-		);
+		ResponseEntity<String> response = restTemplate.exchange(getUrl() + "?page=0&size=0", HttpMethod.GET, entity,
+				String.class);
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
@@ -249,14 +245,13 @@ public class TransferIntegrationTest {
 		performTransfer("wallet1@gmail.com", "wallet2@gmail.com", 10);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferController.TransferResponse>> response = restTemplate.exchange(
-				getUrl() + "?page=100&size=10", HttpMethod.GET, entity,
-				new ParameterizedTypeReference<>() {}
-		);
+		ResponseEntity<PageResponse<TransferController.TransferResponse>> response = restTemplate
+				.exchange(getUrl() + "?page=100&size=10", HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
+				});
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
-        assertEquals(0, response.getBody().content.length);
+		assertEquals(0, response.getBody().content.length);
 	}
 
 	@Test
@@ -264,13 +259,11 @@ public class TransferIntegrationTest {
 		createWallet("wallet1@gmail.com", 100);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<String> response = restTemplate.exchange(
-				getUrl() + "?page=abc&size=xyz", HttpMethod.GET, entity, String.class
-		);
+		ResponseEntity<String> response = restTemplate.exchange(getUrl() + "?page=abc&size=xyz", HttpMethod.GET, entity,
+				String.class);
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
-
 
 	private void createWallet(String email, double balance) {
 		springWalletJpaRepository.save(new WalletEntity(email, "hash", BigDecimal.valueOf(balance)));
