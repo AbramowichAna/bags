@@ -50,12 +50,13 @@ public class TransferController {
 	public ResponseEntity<TransferView> transfer(@RequestBody @Valid TransferRequest request)
 			throws WalletNotFoundException, InsufficientFundsException, InvalidTransferException {
 
-		String fromEmail = securityService.getMail();
+		String fromEmailAddress = securityService.getMail();
 
-		Transfer transfer = transferUseCase.execute(new Email(fromEmail), new Email(request.toEmail()),
+		Email fromEmail = new Email(fromEmailAddress);
+		Transfer transfer = transferUseCase.execute(fromEmail, new Email(request.toEmail()),
 				new Money(request.amount()));
 
-		return ResponseEntity.ok(new TransferView(transfer));
+		return ResponseEntity.ok(new TransferView(transfer, fromEmail));
 	}
 
 	@GetMapping

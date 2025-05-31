@@ -23,7 +23,7 @@ public class TransferQuery {
 			throw new WalletNotFoundException();
 		}
 		Wallet wallet = optionalWallet.get();
-		return transferRepository.findByFromWalletOrToWallet(wallet, wallet, page).stream().map(TransferView::new)
-				.toList();
+		return transferRepository.findByFromWalletOrToWallet(wallet, wallet, page).stream()
+				.map(t -> new TransferView(t, email)).toList();
 	}
 }
