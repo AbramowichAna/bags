@@ -1,5 +1,6 @@
 package edu.aseca.bags.application;
 
+import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.application.dto.TransferView;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.wallet.Wallet;
@@ -16,13 +17,13 @@ public class TransferQuery {
 		this.transferRepository = transferRepository;
 	}
 
-	public List<TransferView> getTransfers(Email email, int page, int size) throws WalletNotFoundException {
+	public List<TransferView> getTransfers(Email email, Pagination page) throws WalletNotFoundException {
 		Optional<Wallet> optionalWallet = walletRepository.findByEmail(email);
 		if (optionalWallet.isEmpty()) {
 			throw new WalletNotFoundException();
 		}
 		Wallet wallet = optionalWallet.get();
-		return transferRepository.findByFromWalletOrToWallet(wallet, wallet, page, size).stream().map(TransferView::new)
+		return transferRepository.findByFromWalletOrToWallet(wallet, wallet, page).stream().map(TransferView::new)
 				.toList();
 	}
 }

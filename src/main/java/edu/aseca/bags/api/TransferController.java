@@ -2,6 +2,7 @@ package edu.aseca.bags.api;
 
 import edu.aseca.bags.application.TransferQuery;
 import edu.aseca.bags.application.TransferUseCase;
+import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.application.dto.TransferView;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
@@ -61,7 +62,7 @@ public class TransferController {
 	public ResponseEntity<Page<TransferView>> getTransfers(@RequestParam(defaultValue = "0") @Min(0) int page,
 			@RequestParam(defaultValue = "10") @Positive int size) throws WalletNotFoundException {
 		String email = securityService.getMail();
-		List<TransferView> responses = transferQuery.getTransfers(new Email(email), page, size);
+		List<TransferView> responses = transferQuery.getTransfers(new Email(email), new Pagination(page, size));
 		Page<TransferView> responsePage = new PageImpl<>(responses, PageRequest.of(page, size), responses.size());
 		return ResponseEntity.ok(responsePage);
 	}
