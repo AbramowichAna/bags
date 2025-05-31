@@ -10,7 +10,9 @@ import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.security.SecurityService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -55,8 +57,8 @@ public class TransferController {
 	}
 
 	@GetMapping
-	public ResponseEntity<Page<TransferResponse>> getTransfers(@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) throws WalletNotFoundException {
+	public ResponseEntity<Page<TransferResponse>> getTransfers(@RequestParam(defaultValue = "0") @Min(0) int page,
+															   @RequestParam(defaultValue = "10") @Positive int size) throws WalletNotFoundException {
 		String email = securityService.getMail();
 		List<Transfer> transfers = transferQuery.getTransfers(new Email(email), page, size);
 		List<TransferResponse> responses = transfers.stream().map(TransferResponse::new).toList();

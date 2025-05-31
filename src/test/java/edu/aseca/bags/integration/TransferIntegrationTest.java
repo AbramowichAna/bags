@@ -44,13 +44,6 @@ public class TransferIntegrationTest {
 		return "/transfer";
 	}
 
-	private HttpHeaders jsonHeadersWithAuth() {
-		var headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setBearerAuth(jwtTestUtil.generateValidToken("wallet1@gmail.com", 3600));
-		return headers;
-	}
-
 	public static class PageResponse<T> {
 		public T[] content;
 		public int number;
@@ -174,7 +167,7 @@ public class TransferIntegrationTest {
 
 	@Test
 	void shouldNotReturnTransfersOfOtherWallets_010() {
-		// Arrange
+
 		createWallet("wallet1@gmail.com", 100);
 		createWallet("wallet2@gmail.com", 100);
 		createWallet("wallet3@gmail.com", 100);
@@ -182,13 +175,11 @@ public class TransferIntegrationTest {
 		performTransfer("wallet1@gmail.com", "wallet2@gmail.com", 10.0);
 		performTransfer("wallet3@gmail.com", "wallet2@gmail.com", 20.0);
 
-		// Act
 		HttpEntity<Void> request = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
 		ResponseEntity<PageResponse<TransferController.TransferResponse>> response = restTemplate.exchange(getUrl(),
 				HttpMethod.GET, request, new ParameterizedTypeReference<>() {
 				});
 
-		// Assert
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		PageResponse<TransferController.TransferResponse> page = response.getBody();
 		assertNotNull(page);
@@ -199,6 +190,87 @@ public class TransferIntegrationTest {
 				() -> assertEquals("wallet2@gmail.com", transfer.toEmail()),
 				() -> assertEquals(10.0, transfer.amount()));
 	}
+
+	@Test
+	void shouldReturnEmptyPageWhenNoTransfersExist_011() {
+		createWallet("wallet1@gmail.com", 100);
+
+		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
+		ResponseEntity<PageResponse<TransferController.TransferResponse>> response = restTemplate.exchange(
+				getUrl() + "?page=0&size=10", HttpMethod.GET, entity,
+				new ParameterizedTypeReference<>() {}
+		);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertNotNull(response.getBody());
+		assertEquals(0, response.getBody().content.length);
+	}
+
+	@Test
+	void shouldReturnBadRequestForNegativePage_012() {
+		createWallet("wallet1@gmail.com", 100);
+
+		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
+		ResponseEntity<String> response = restTemplate.exchange(
+				getUrl() + "?page=-1&size=10", HttpMethod.GET, entity, String.class
+		);
+
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+	}
+
+	@Test
+	void shouldReturnBadRequestForNegativeSize_013() {
+		createWallet("wallet1@gmail.com", 100);
+
+		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
+		ResponseEntity<String> response = restTemplate.exchange(
+				getUrl() + "?page=0&size=-5", HttpMethod.GET, entity, String.class
+		);
+
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+	}
+
+	@Test
+	void shouldReturnBadRequestForZeroSize_014() {
+		createWallet("wallet1@gmail.com", 100);
+
+		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
+		ResponseEntity<String> response = restTemplate.exchange(
+				getUrl() + "?page=0&size=0", HttpMethod.GET, entity, String.class
+		);
+
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+	}
+
+	@Test
+	void shouldReturnEmptyPageIfPageIsTooHigh_015() {
+		createWallet("wallet1@gmail.com", 100);
+		createWallet("wallet2@gmail.com", 50);
+		performTransfer("wallet1@gmail.com", "wallet2@gmail.com", 10);
+
+		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
+		ResponseEntity<PageResponse<TransferController.TransferResponse>> response = restTemplate.exchange(
+				getUrl() + "?page=100&size=10", HttpMethod.GET, entity,
+				new ParameterizedTypeReference<>() {}
+		);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertNotNull(response.getBody());
+        assertEquals(0, response.getBody().content.length);
+	}
+
+	@Test
+	void shouldReturnBadRequestForNonNumericPageAndSize_016() {
+		createWallet("wallet1@gmail.com", 100);
+
+		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
+		ResponseEntity<String> response = restTemplate.exchange(
+				getUrl() + "?page=abc&size=xyz", HttpMethod.GET, entity, String.class
+		);
+
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+	}
+
 
 	private void createWallet(String email, double balance) {
 		springWalletJpaRepository.save(new WalletEntity(email, "hash", BigDecimal.valueOf(balance)));

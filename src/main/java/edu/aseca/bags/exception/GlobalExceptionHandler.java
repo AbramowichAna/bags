@@ -1,9 +1,11 @@
 package edu.aseca.bags.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintDeclarationException;
+import jakarta.validation.*;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -61,6 +65,27 @@ public class GlobalExceptionHandler {
 		return buildErrorResponse("Validation error", HttpStatus.BAD_REQUEST, "Some fields are invalid.",
 				request.getRequestURI(), validationErrors);
 	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex,
+																	  HttpServletRequest request) {
+		Map<String, String> validationErrors = ex.getConstraintViolations().stream()
+				.collect(Collectors.toMap(
+						v -> {
+							String path = v.getPropertyPath().toString();
+							return path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+						},
+						ConstraintViolation::getMessage,
+						(existing, replacement) -> existing
+				));
+
+		return buildErrorResponse("Validation error",
+				HttpStatus.BAD_REQUEST,
+				"Some parameters are invalid.",
+				request.getRequestURI(),
+				validationErrors);
+	}
+
 
 	@ExceptionHandler(BadCredentialsException.class)
 	public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
@@ -124,5 +149,13 @@ public class GlobalExceptionHandler {
 		ApiErrorResponse response = new ApiErrorResponse(title, status.value(), detail, instance, errors);
 		return ResponseEntity.status(status).body(response);
 	}
+
+	@Bean
+	public LocaleResolver localeResolver() {
+		SessionLocaleResolver slr = new SessionLocaleResolver();
+		slr.setDefaultLocale(Locale.ENGLISH);
+		return slr;
+	}
+
 
 }
