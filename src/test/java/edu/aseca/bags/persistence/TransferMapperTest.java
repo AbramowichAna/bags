@@ -51,9 +51,8 @@ public class TransferMapperTest {
 
 		Instant timestamp = Instant.now();
 		UUID transferNumber = UUID.randomUUID();
-		TransferEntity transferEntity = new TransferEntity(fromWalletEntity, toWalletEntity, BigDecimal.valueOf(150.0),
-				timestamp);
-		transferEntity.setTransferNumber(transferNumber); // Explicitly set the transferNumber
+		TransferEntity transferEntity = new TransferEntity(transferNumber, fromWalletEntity, toWalletEntity,
+				BigDecimal.valueOf(150.0), timestamp);
 
 		Transfer transfer = TransferMapper.toDomain(transferEntity);
 

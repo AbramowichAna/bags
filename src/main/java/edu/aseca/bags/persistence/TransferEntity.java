@@ -37,8 +37,9 @@ public class TransferEntity {
 	public TransferEntity() {
 	}
 
-	public TransferEntity(WalletEntity fromWallet, WalletEntity toWallet, BigDecimal amount, Instant timestamp) {
-		this.transferNumber = UUID.randomUUID();
+	public TransferEntity(UUID transferNumber, WalletEntity fromWallet, WalletEntity toWallet, BigDecimal amount,
+			Instant timestamp) {
+		this.transferNumber = transferNumber;
 		this.fromWallet = fromWallet;
 		this.toWallet = toWallet;
 		this.amount = amount;

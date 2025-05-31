@@ -14,7 +14,7 @@ public class TransferMapper {
 			return null;
 		}
 
-		TransferEntity entity = new TransferEntity(fromWalletEntity, toWalletEntity,
+		TransferEntity entity = new TransferEntity(transfer.transferNumber().value(), fromWalletEntity, toWalletEntity,
 				BigDecimal.valueOf(transfer.amount().amount()), transfer.timestamp());
 		entity.setTransferNumber(transfer.transferNumber().value());
 
