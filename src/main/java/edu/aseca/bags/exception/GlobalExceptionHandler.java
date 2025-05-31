@@ -6,12 +6,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -23,6 +25,25 @@ public class GlobalExceptionHandler {
 		ex.printStackTrace(); // Log the exception stack trace for debugging
 		return buildErrorResponse("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, "Error",
 				req.getRequestURI(), null);
+	}
+
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ApiErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+			HttpServletRequest req) {
+		return buildErrorResponse("Bad Request", HttpStatus.BAD_REQUEST, "Malformed JSON request", req.getRequestURI(),
+				null);
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ApiErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
+			HttpServletRequest req) {
+		String paramName = ex.getName();
+		String expectedType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+		String receivedValue = ex.getValue() != null ? ex.getValue().toString() : "null";
+		String message = String.format("Parameter '%s' must be of type '%s', but received: '%s'", paramName,
+				expectedType, receivedValue);
+
+		return buildErrorResponse("Bad Request", HttpStatus.BAD_REQUEST, message, req.getRequestURI(), null);
 	}
 
 	@ExceptionHandler(ConstraintDeclarationException.class)

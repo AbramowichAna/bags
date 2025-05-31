@@ -168,7 +168,7 @@ public class TransferIntegrationTest {
 		HttpEntity<String> entity = new HttpEntity<>(null, headers);
 		ResponseEntity<Void> response = restTemplate.postForEntity(getUrl(), entity, Void.class);
 
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
 
 	@Test
