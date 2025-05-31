@@ -2,6 +2,7 @@ package edu.aseca.bags.api;
 
 import edu.aseca.bags.application.TransferQuery;
 import edu.aseca.bags.application.TransferUseCase;
+import edu.aseca.bags.application.dto.TransferView;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Transfer;
@@ -45,7 +46,7 @@ public class TransferController {
 
 	@Transactional
 	@PostMapping
-	public ResponseEntity<TransferResponse> transfer(@RequestBody @Valid TransferRequest request)
+	public ResponseEntity<TransferView> transfer(@RequestBody @Valid TransferRequest request)
 			throws WalletNotFoundException, InsufficientFundsException, InvalidTransferException {
 
 		String fromEmail = securityService.getMail();
@@ -53,27 +54,18 @@ public class TransferController {
 		Transfer transfer = transferUseCase.execute(new Email(fromEmail), new Email(request.toEmail()),
 				new Money(request.amount()));
 
-		return ResponseEntity.ok(new TransferResponse(transfer));
+		return ResponseEntity.ok(new TransferView(transfer));
 	}
 
 	@GetMapping
-	public ResponseEntity<Page<TransferResponse>> getTransfers(@RequestParam(defaultValue = "0") @Min(0) int page,
+	public ResponseEntity<Page<TransferView>> getTransfers(@RequestParam(defaultValue = "0") @Min(0) int page,
 			@RequestParam(defaultValue = "10") @Positive int size) throws WalletNotFoundException {
 		String email = securityService.getMail();
-		List<Transfer> transfers = transferQuery.getTransfers(new Email(email), page, size);
-		List<TransferResponse> responses = transfers.stream().map(TransferResponse::new).toList();
-		Page<TransferResponse> responsePage = new PageImpl<>(responses, PageRequest.of(page, size), responses.size());
+		List<TransferView> responses = transferQuery.getTransfers(new Email(email), page, size);
+		Page<TransferView> responsePage = new PageImpl<>(responses, PageRequest.of(page, size), responses.size());
 		return ResponseEntity.ok(responsePage);
 	}
 
 	public record TransferRequest(@NotNull String toEmail, @NotNull Double amount) {
-	}
-
-	public record TransferResponse(String fromEmail, String toEmail, Double amount, String timestamp,
-			String transferNumber) {
-		public TransferResponse(Transfer transfer) {
-			this(transfer.fromWallet().getEmail().address(), transfer.toWallet().getEmail().address(),
-					transfer.amount().amount(), transfer.timestamp().toString(), transfer.transferNumber().toString());
-		}
 	}
 }
