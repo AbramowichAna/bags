@@ -2,6 +2,7 @@ package edu.aseca.bags.persistence;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
@@ -87,7 +88,8 @@ public class JpaTransferRepositoryTest {
 
 		int page = 0;
 		int size = 10;
-		List<Transfer> transfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, page, size);
+		List<Transfer> transfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1,
+				new Pagination(page, size));
 
 		assertEquals(2, transfers.size(), "Should retrieve all transfers associated with wallet1");
 		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())),
@@ -118,11 +120,13 @@ public class JpaTransferRepositoryTest {
 
 		int page = 0;
 		int size = 2;
-		List<Transfer> transfersPage = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, page, size);
+		List<Transfer> transfersPage = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1,
+				new Pagination(page, size));
 
 		assertEquals(2, transfersPage.size(), "Should return 2 transfers in the first page");
 
-		List<Transfer> allTransfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, 0, 10);
+		List<Transfer> allTransfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1,
+				new Pagination(0, 10));
 		assertEquals(3, allTransfers.size(), "Total elements should be 3");
 
 		int totalPages = (int) Math.ceil((double) allTransfers.size() / size);

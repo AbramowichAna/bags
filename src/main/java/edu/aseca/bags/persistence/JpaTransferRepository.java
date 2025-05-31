@@ -1,6 +1,7 @@
 package edu.aseca.bags.persistence;
 
 import edu.aseca.bags.application.TransferRepository;
+import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.domain.wallet.Wallet;
@@ -38,14 +39,14 @@ public class JpaTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public List<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, int page, int size) {
+	public List<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, Pagination page) {
 		WalletEntity fromWalletEntity = walletJpaRepository.findByEmail(fromWallet.getEmail().address())
 				.orElseThrow(() -> new IllegalStateException("From wallet not found"));
 		WalletEntity toWalletEntity = walletJpaRepository.findByEmail(toWallet.getEmail().address())
 				.orElseThrow(() -> new IllegalStateException("To wallet not found"));
 
 		Page<TransferEntity> pageResult = jpaRepository.findByFromWalletOrToWallet(fromWalletEntity, toWalletEntity,
-				org.springframework.data.domain.PageRequest.of(page, size));
+				org.springframework.data.domain.PageRequest.of(page.page(), page.size()));
 		return pageResult.stream().map(TransferMapper::toDomain).toList();
 	}
 
