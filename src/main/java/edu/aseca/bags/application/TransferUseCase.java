@@ -57,5 +57,4 @@ public class TransferUseCase {
 			throw new InvalidTransferException("Transfer amount must be greater than zero");
 		}
 	}
-
 }
