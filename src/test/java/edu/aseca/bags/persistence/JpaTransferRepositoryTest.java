@@ -9,6 +9,7 @@ import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.domain.wallet.Wallet;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -65,4 +66,72 @@ public class JpaTransferRepositoryTest {
 		Optional<Transfer> transfer = transferRepository.findByTransferNumber(TransferNumber.of(UUID.randomUUID()));
 		assertFalse(transfer.isPresent(), "Should return empty when transfer does not exist");
 	}
+
+	@Test
+	void findAllTransfersOfaWalletReturnsCorrectTransfers_003() {
+		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
+				this.walletRepository);
+		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
+
+		Wallet wallet1 = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
+		wallet1.addBalance(new Money(100.0));
+		Wallet wallet2 = new Wallet(new Email("wallet2@gmail.com"), new Password("wallet123"));
+		wallet2.addBalance(new Money(100.0));
+		walletRepository.save(wallet1);
+		walletRepository.save(wallet2);
+
+		Transfer transfer1 = new Transfer(wallet1, wallet2, new Money(50.0), Instant.now());
+		Transfer transfer2 = new Transfer(wallet2, wallet1, new Money(30.0), Instant.now());
+		transferRepository.save(transfer1);
+		transferRepository.save(transfer2);
+
+		int page = 0;
+		int size = 10;
+		List<Transfer> transfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, page, size);
+
+		assertEquals(2, transfers.size(), "Should retrieve all transfers associated with wallet1");
+		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())),
+				"Transfer1 should be included");
+		assertTrue(transfers.stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())),
+				"Transfer2 should be included");
+	}
+
+	@Test
+	void findTransfersWithPagination_004() {
+		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
+				this.walletRepository);
+		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
+
+		Wallet wallet1 = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
+		wallet1.addBalance(new Money(100.0));
+		Wallet wallet2 = new Wallet(new Email("wallet2@gmail.com"), new Password("wallet123"));
+		wallet2.addBalance(new Money(100.0));
+		walletRepository.save(wallet1);
+		walletRepository.save(wallet2);
+
+		Transfer transfer1 = new Transfer(wallet1, wallet2, new Money(50.0), Instant.now());
+		Transfer transfer2 = new Transfer(wallet2, wallet1, new Money(30.0), Instant.now());
+		Transfer transfer3 = new Transfer(wallet1, wallet2, new Money(20.0), Instant.now());
+		transferRepository.save(transfer1);
+		transferRepository.save(transfer2);
+		transferRepository.save(transfer3);
+
+		int page = 0;
+		int size = 2;
+		List<Transfer> transfersPage = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, page, size);
+
+		assertEquals(2, transfersPage.size(), "Should return 2 transfers in the first page");
+
+		List<Transfer> allTransfers = transferRepository.findByFromWalletOrToWallet(wallet1, wallet1, 0, 10);
+		assertEquals(3, allTransfers.size(), "Total elements should be 3");
+
+		int totalPages = (int) Math.ceil((double) allTransfers.size() / size);
+		assertEquals(2, totalPages, "Total pages should be 2");
+
+		assertTrue(transfersPage.stream().anyMatch(t -> t.transferNumber().equals(transfer1.transferNumber())),
+				"Transfer1 should be included");
+		assertTrue(transfersPage.stream().anyMatch(t -> t.transferNumber().equals(transfer2.transferNumber())),
+				"Transfer2 should be included");
+	}
+
 }
