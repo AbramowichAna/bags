@@ -8,6 +8,7 @@ import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.ExternalLoad;
 import edu.aseca.bags.domain.transaction.ExternalService;
 import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.exception.WalletNotFoundException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
@@ -36,7 +37,7 @@ class JpaExternalLoadRepositoryTest {
 	}
 
 	@Test
-	void saveShouldPersistExternalLoad_001() {
+	void saveShouldPersistExternalLoad_001() throws WalletNotFoundException {
 		String email = "test@domain.com";
 		WalletEntity walletEntity = new WalletEntity(email, "hash", BigDecimal.ZERO);
 		walletJpaRepository.save(walletEntity);

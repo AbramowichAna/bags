@@ -25,18 +25,14 @@ public class ExternalLoadUseCase {
 
 	public ExternalLoadResponse loadFromExternal(ExternalLoadRequest request) throws WalletNotFoundException {
 
-		String wallet = request.getWalletEmail();
-		BigDecimal amount = request.getAmount();
-		String service = request.getExternalService();
-		String externalTransactionId = request.getExternalTransactionId();
+		String wallet = request.walletEmail();
+		BigDecimal amount = request.amount();
+		String service = request.externalService();
+		String externalTransactionId = request.externalTransactionId();
 		Optional<Wallet> optionalToWallet = walletRepository.findByEmail(new Email(wallet));
 		Instant timestamp = Instant.now();
 
-		if (optionalToWallet.isEmpty()) {
-			throw new WalletNotFoundException();
-		}
-
-		Wallet toWallet = optionalToWallet.get();
+		Wallet toWallet = optionalToWallet.orElseThrow(WalletNotFoundException::new);
 
 		if (amount == null || service == null) {
 			throw new IllegalArgumentException("Amount and transfer method must not be null");
@@ -51,6 +47,7 @@ public class ExternalLoadUseCase {
 				new Money(amount.doubleValue()), timestamp, ExternalService.fromString(service));
 		externalLoadRepository.save(externalLoad);
 
-		return new ExternalLoadResponse(wallet, amount, service, externalTransactionId, timestamp, "SUCCESS");
+		return new ExternalLoadResponse(externalLoad.toWallet().getEmail().address(), externalLoad.amount().amount(),
+				externalLoad.service().name(), externalLoad.transactionId().toString(), timestamp, "SUCCESS");
 	}
 }

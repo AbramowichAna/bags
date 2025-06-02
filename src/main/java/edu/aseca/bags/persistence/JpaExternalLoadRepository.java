@@ -2,6 +2,7 @@ package edu.aseca.bags.persistence;
 
 import edu.aseca.bags.application.ExternalLoadRepository;
 import edu.aseca.bags.domain.transaction.ExternalLoad;
+import edu.aseca.bags.exception.WalletNotFoundException;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,9 +18,9 @@ public class JpaExternalLoadRepository implements ExternalLoadRepository {
 	}
 
 	@Override
-	public void save(ExternalLoad externalLoad) {
+	public void save(ExternalLoad externalLoad) throws WalletNotFoundException {
 		WalletEntity toWalletEntity = walletJpaRepository.findByEmail(externalLoad.toWallet().getEmail().address())
-				.orElseThrow(() -> new IllegalStateException("Wallet not found"));
+				.orElseThrow(WalletNotFoundException::new);
 		ExternalLoadEntity entity = ExternalLoadMapper.toEntity(externalLoad, toWalletEntity);
 		jpaRepository.save(entity);
 	}

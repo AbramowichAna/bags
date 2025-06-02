@@ -30,24 +30,7 @@ public class ExternalLoadUseCaseTest {
 	}
 
 	private ExternalLoadRequest buildRequest(String email, BigDecimal amount, String txId) {
-		ExternalLoadRequest req = new ExternalLoadRequest();
-		try {
-			var f1 = req.getClass().getDeclaredField("walletEmail");
-			f1.setAccessible(true);
-			f1.set(req, email);
-			var f2 = req.getClass().getDeclaredField("amount");
-			f2.setAccessible(true);
-			f2.set(req, amount);
-			var f3 = req.getClass().getDeclaredField("externalService");
-			f3.setAccessible(true);
-			f3.set(req, "BANK_TRANSFER");
-			var f4 = req.getClass().getDeclaredField("externalTransactionId");
-			f4.setAccessible(true);
-			f4.set(req, txId);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return req;
+		return new ExternalLoadRequest(email, amount, "BANK_TRANSFER", txId);
 	}
 
 	@Test
@@ -56,8 +39,8 @@ public class ExternalLoadUseCaseTest {
 		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), BigDecimal.valueOf(100.0), txId);
 		ExternalLoadResponse response = externalLoadUseCase.loadFromExternal(request);
 		assertEquals(100.0, wallet.getBalance().amount());
-		assertEquals("SUCCESS", response.getStatus());
-		assertEquals(BigDecimal.valueOf(100.0), response.getAmount());
+		assertEquals("SUCCESS", response.status());
+		assertEquals(100.0, response.amount());
 	}
 
 	@Test
