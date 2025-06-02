@@ -40,6 +40,12 @@ public class ExternalLoadUseCase {
 		if (amount.compareTo(BigDecimal.ZERO) <= 0) {
 			throw new IllegalArgumentException("Amount must be greater than zero");
 		}
+
+		UUID transactionUuid = UUID.fromString(externalTransactionId);
+		if (externalLoadRepository.existsByTransactionId(transactionUuid)) {
+			throw new IllegalArgumentException("External reference already used");
+		}
+
 		toWallet.addBalance(new Money(amount.doubleValue()));
 		walletRepository.save(toWallet);
 

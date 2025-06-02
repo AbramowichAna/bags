@@ -13,6 +13,11 @@ public class InMemoryExternalLoadRepository implements ExternalLoadRepository {
 		data.put(externalLoad.transactionId(), externalLoad);
 	}
 
+	@Override
+	public boolean existsByTransactionId(UUID transactionUuid) {
+		return data.containsKey(transactionUuid);
+	}
+
 	public int count() {
 		return data.size();
 	}

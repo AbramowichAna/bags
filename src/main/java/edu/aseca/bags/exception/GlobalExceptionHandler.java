@@ -126,6 +126,13 @@ public class GlobalExceptionHandler {
 				null);
 	}
 
+	@ExceptionHandler(edu.aseca.bags.exception.InvalidApiTokenException.class)
+	public ResponseEntity<?> handleInvalidApiTokenException(edu.aseca.bags.exception.InvalidApiTokenException ex,
+			HttpServletRequest request) {
+		return ResponseEntity.status(401)
+				.body(new ApiErrorResponse("Unauthorized", 401, ex.getMessage(), request.getRequestURI(), null));
+	}
+
 	public record ApiErrorResponse(String title, int status, String detail, String instance,
 			Map<String, String> errors) {
 	}
