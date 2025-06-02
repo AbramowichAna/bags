@@ -31,4 +31,10 @@ public class UseCaseConfig {
 	public TransferQuery transferQuery(WalletRepository walletRepository, TransferRepository transferRepository) {
 		return new TransferQuery(walletRepository, transferRepository);
 	}
+
+	@Bean
+	public ExternalLoadUseCase externalLoadUseCase(WalletRepository walletRepository,
+			ExternalLoadRepository externalLoadRepository) {
+		return new ExternalLoadUseCase(walletRepository, externalLoadRepository);
+	}
 }
