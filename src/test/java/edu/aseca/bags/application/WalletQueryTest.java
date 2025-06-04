@@ -3,6 +3,7 @@ package edu.aseca.bags.application;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.application.dto.WalletInfo;
+import edu.aseca.bags.application.util.InMemoryWalletRepository;
 import edu.aseca.bags.exception.BadPermissionException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.testutil.TestWalletFactory;

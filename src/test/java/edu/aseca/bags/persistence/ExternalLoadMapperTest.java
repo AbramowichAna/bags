@@ -5,9 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
+import edu.aseca.bags.domain.participant.ExternalAccount;
+import edu.aseca.bags.domain.participant.ServiceType;
+import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.ExternalLoad;
-import edu.aseca.bags.domain.transaction.ExternalService;
-import edu.aseca.bags.domain.wallet.Wallet;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -21,11 +22,15 @@ class ExternalLoadMapperTest {
 		Instant now = Instant.now();
 		Wallet wallet = new Wallet(new Email("test@example.com"), new Password("pass"));
 		Money amount = new Money(123.45);
-		ExternalService service = ExternalService.BANK_TRANSFER;
+
+		String serviceName = "BANK_TRANSFER";
+		ServiceType serviceType = ServiceType.BANK;
+		String serviceEmail = "bank@bank.com";
+		ExternalAccount externalAccount = new ExternalAccount(serviceName, serviceType, serviceEmail);
 
 		WalletEntity walletEntity = new WalletEntity("test@example.com", "hash", BigDecimal.ZERO);
 
-		ExternalLoad domain = new ExternalLoad(txId, wallet, amount, now, service);
+		ExternalLoad domain = new ExternalLoad(txId, wallet, amount, now, externalAccount);
 
 		ExternalLoadEntity entity = ExternalLoadMapper.toEntity(domain, walletEntity);
 
@@ -33,7 +38,9 @@ class ExternalLoadMapperTest {
 		assertEquals(walletEntity, entity.getToWallet());
 		assertEquals(BigDecimal.valueOf(123.45), entity.getAmount());
 		assertEquals(now, entity.getTimestamp());
-		assertEquals(service.name(), entity.getService());
+		assertEquals(serviceName, entity.getExternalServiceName());
+		assertEquals(serviceType.name(), entity.getExternalServiceType());
+		assertEquals(serviceEmail, entity.getExternalServiceEmail());
 	}
 
 	@Test
@@ -41,12 +48,16 @@ class ExternalLoadMapperTest {
 		UUID txId = UUID.randomUUID();
 		Instant now = Instant.now();
 		BigDecimal amount = BigDecimal.valueOf(99.99);
-		String service = "BANK_TRANSFER";
+
+		String serviceName = "BANK_TRANSFER";
+		String serviceType = "BANK";
+		String serviceEmail = "bank@bank.com";
 
 		WalletEntity walletEntity = new WalletEntity("user@domain.com", "hash", BigDecimal.ZERO);
-		edu.aseca.bags.domain.wallet.Wallet wallet = new Wallet(new Email("user@domain.com"), new Password("pass"));
+		Wallet wallet = new Wallet(new Email("user@domain.com"), new Password("pass"));
 
-		ExternalLoadEntity entity = new ExternalLoadEntity(txId, walletEntity, amount, now, service);
+		ExternalLoadEntity entity = new ExternalLoadEntity(txId, walletEntity, amount, now, serviceName, serviceType,
+				serviceEmail);
 
 		ExternalLoad domain = ExternalLoadMapper.toDomain(entity, wallet);
 
@@ -54,6 +65,8 @@ class ExternalLoadMapperTest {
 		assertEquals(wallet, domain.toWallet());
 		assertEquals(99.99, domain.amount().amount());
 		assertEquals(now, domain.timestamp());
-		assertEquals(ExternalService.BANK_TRANSFER, domain.service());
+		assertEquals(serviceName, domain.externalAccount().externalServiceName());
+		assertEquals(ServiceType.BANK, domain.externalAccount().serviceType());
+		assertEquals(serviceEmail, domain.externalAccount().email());
 	}
 }

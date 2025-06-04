@@ -2,9 +2,11 @@ package edu.aseca.bags.application;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import edu.aseca.bags.application.util.InMemoryWalletRepository;
+import edu.aseca.bags.application.util.StubPasswordEncoder;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
-import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.exception.AlreadyExistingWallet;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;

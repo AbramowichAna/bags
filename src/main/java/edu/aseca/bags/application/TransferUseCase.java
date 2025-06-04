@@ -2,8 +2,8 @@ package edu.aseca.bags.application;
 
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
+import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.Transfer;
-import edu.aseca.bags.domain.wallet.Wallet;
 import edu.aseca.bags.exception.InsufficientFundsException;
 import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;

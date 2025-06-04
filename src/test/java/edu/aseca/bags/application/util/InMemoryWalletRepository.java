@@ -1,12 +1,13 @@
-package edu.aseca.bags.application;
+package edu.aseca.bags.application.util;
 
+import edu.aseca.bags.application.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
-import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.domain.participant.Wallet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-class InMemoryWalletRepository implements WalletRepository {
+public class InMemoryWalletRepository implements WalletRepository {
 	private final Map<Email, Wallet> data = new HashMap<>();
 
 	@Override

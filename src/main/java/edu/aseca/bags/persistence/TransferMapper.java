@@ -1,9 +1,9 @@
 package edu.aseca.bags.persistence;
 
 import edu.aseca.bags.domain.money.Money;
+import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.transaction.TransferNumber;
-import edu.aseca.bags.domain.wallet.Wallet;
 import java.math.BigDecimal;
 
 public class TransferMapper {

@@ -5,6 +5,9 @@ import edu.aseca.bags.application.CreateWalletUseCase;
 import edu.aseca.bags.application.PasswordEncoder;
 import edu.aseca.bags.application.WalletQuery;
 import edu.aseca.bags.application.WalletRepository;
+import edu.aseca.bags.application.clients.ExternalApiClient;
+import edu.aseca.bags.application.clients.ExternalApiClientImpl;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,5 +39,15 @@ public class UseCaseConfig {
 	public ExternalLoadUseCase externalLoadUseCase(WalletRepository walletRepository,
 			ExternalLoadRepository externalLoadRepository) {
 		return new ExternalLoadUseCase(walletRepository, externalLoadRepository);
+	}
+
+	@Bean
+	public ExternalLoadQuery externalLoadQuery(ExternalLoadRepository externalLoadRepository) {
+		return new ExternalLoadQuery(externalLoadRepository);
+	}
+
+	@Bean
+	public TransactionQuery transactionQuery(TransferQuery transferQuery, ExternalLoadQuery externalLoadQuery) {
+		return new TransactionQuery(transferQuery, externalLoadQuery);
 	}
 }

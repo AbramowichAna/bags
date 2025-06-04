@@ -3,7 +3,7 @@ package edu.aseca.bags.application;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.email.RawPassword;
-import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.exception.AlreadyExistingWallet;
 
 public class CreateWalletUseCase {

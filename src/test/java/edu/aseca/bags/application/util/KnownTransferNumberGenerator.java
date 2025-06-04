@@ -1,5 +1,6 @@
-package edu.aseca.bags.application;
+package edu.aseca.bags.application.util;
 
+import edu.aseca.bags.application.TransferNumberGenerator;
 import edu.aseca.bags.domain.transaction.TransferNumber;
 
 public class KnownTransferNumberGenerator implements TransferNumberGenerator {

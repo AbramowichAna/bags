@@ -31,17 +31,25 @@ public class ExternalLoadEntity {
 	private Instant timestamp;
 
 	@Column(name = "service", nullable = false)
-	private String service;
+	private String externalServiceName;
+
+	@Column(name = "service_type", nullable = false)
+	private String externalServiceType;
+
+	@Column(name = "service_email", nullable = false)
+	private String externalServiceEmail;
 
 	public ExternalLoadEntity() {
 	}
 
 	public ExternalLoadEntity(UUID transactionId, WalletEntity toWallet, BigDecimal amount, Instant timestamp,
-			String service) {
+			String externalServiceName, String externalServiceType, String externalServiceEmail) {
 		this.transactionId = transactionId;
 		this.toWallet = toWallet;
 		this.amount = amount;
 		this.timestamp = timestamp;
-		this.service = service;
+		this.externalServiceName = externalServiceName;
+		this.externalServiceType = externalServiceType;
+		this.externalServiceEmail = externalServiceEmail;
 	}
 }

@@ -3,7 +3,7 @@ package edu.aseca.bags.persistence;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
-import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.domain.participant.Wallet;
 import java.math.BigDecimal;
 
 public class WalletMapper {

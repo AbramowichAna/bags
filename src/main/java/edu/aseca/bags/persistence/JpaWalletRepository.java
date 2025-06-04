@@ -2,7 +2,7 @@ package edu.aseca.bags.persistence;
 
 import edu.aseca.bags.application.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
-import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.domain.participant.Wallet;
 import java.math.BigDecimal;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;

@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.api.dto.ExternalLoadRequest;
 import edu.aseca.bags.api.dto.ExternalLoadResponse;
+import edu.aseca.bags.application.util.InMemoryExternalLoadRepository;
+import edu.aseca.bags.application.util.InMemoryWalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
-import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -30,7 +32,7 @@ public class ExternalLoadUseCaseTest {
 	}
 
 	private ExternalLoadRequest buildRequest(String email, BigDecimal amount, String txId) {
-		return new ExternalLoadRequest(email, amount, "BANK_TRANSFER", txId);
+		return new ExternalLoadRequest(email, amount, "BANK_TRANSFER", "BANK", "bank@bank.com", txId);
 	}
 
 	@Test
@@ -69,6 +71,6 @@ public class ExternalLoadUseCaseTest {
 		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
 			externalLoadUseCase.loadFromExternal(request);
 		});
-		assertEquals("Amount and transfer method must not be null", ex.getMessage());
+		assertEquals("Amount must not be null", ex.getMessage());
 	}
 }

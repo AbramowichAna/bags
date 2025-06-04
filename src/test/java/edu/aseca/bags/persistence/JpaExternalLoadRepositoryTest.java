@@ -5,9 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
+import edu.aseca.bags.domain.participant.ExternalAccount;
+import edu.aseca.bags.domain.participant.ServiceType;
+import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.ExternalLoad;
-import edu.aseca.bags.domain.transaction.ExternalService;
-import edu.aseca.bags.domain.wallet.Wallet;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -46,9 +47,13 @@ class JpaExternalLoadRepositoryTest {
 		UUID txId = UUID.randomUUID();
 		Money amount = new Money(50.0);
 		Instant now = Instant.now();
-		ExternalService service = ExternalService.BANK_TRANSFER;
 
-		ExternalLoad externalLoad = new ExternalLoad(txId, wallet, amount, now, service);
+		String serviceName = "BANK_TRANSFER";
+		ServiceType serviceType = ServiceType.BANK;
+		String serviceEmail = "bank@bank.com";
+		ExternalAccount externalAccount = new ExternalAccount(serviceName, serviceType, serviceEmail);
+
+		ExternalLoad externalLoad = new ExternalLoad(txId, wallet, amount, now, externalAccount);
 
 		jpaExternalLoadRepository.save(externalLoad);
 
@@ -59,7 +64,9 @@ class JpaExternalLoadRepositoryTest {
 		ExternalLoadEntity entity = found.get();
 		assertEquals(txId, entity.getTransactionId());
 		assertEquals(BigDecimal.valueOf(50.0), entity.getAmount());
-		assertEquals(service.name(), entity.getService());
+		assertEquals(serviceName, entity.getExternalServiceName());
+		assertEquals(serviceType.name(), entity.getExternalServiceType());
+		assertEquals(serviceEmail, entity.getExternalServiceEmail());
 		assertEquals(email, entity.getToWallet().getEmail());
 	}
 }

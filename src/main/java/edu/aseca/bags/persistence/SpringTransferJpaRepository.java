@@ -1,5 +1,6 @@
 package edu.aseca.bags.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -12,4 +13,6 @@ public interface SpringTransferJpaRepository extends JpaRepository<TransferEntit
 	Optional<TransferEntity> findByTransferNumber(UUID transferNumber);
 
 	Page<TransferEntity> findByFromWalletOrToWallet(WalletEntity fromWallet, WalletEntity toWallet, Pageable pageable);
+
+	List<TransferEntity> findByFromWalletOrToWallet(WalletEntity fromWallet, WalletEntity toWallet);
 }
