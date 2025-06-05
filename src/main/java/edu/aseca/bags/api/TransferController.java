@@ -2,7 +2,6 @@ package edu.aseca.bags.api;
 
 import edu.aseca.bags.application.TransferQuery;
 import edu.aseca.bags.application.TransferUseCase;
-import edu.aseca.bags.application.dto.PageResponse;
 import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.application.dto.TransferView;
 import edu.aseca.bags.domain.email.Email;
@@ -17,8 +16,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -63,10 +60,7 @@ public class TransferController {
 	public ResponseEntity<Page<TransferView>> getTransfers(@RequestParam(defaultValue = "0") @Min(0) int page,
 			@RequestParam(defaultValue = "10") @Positive int size) throws WalletNotFoundException {
 		String email = securityService.getMail();
-		PageResponse<TransferView> responses = transferQuery.getTransfers(new Email(email), new Pagination(page, size));
-		Page<TransferView> responsePage = new PageImpl<>(responses.content(), PageRequest.of(page, size),
-				responses.totalPages());
-		return ResponseEntity.ok(responsePage);
+		return ResponseEntity.ok(transferQuery.getTransfers(new Email(email), new Pagination(page, size)));
 	}
 
 	public record TransferRequest(@NotNull String toEmail, @NotNull Double amount) {
