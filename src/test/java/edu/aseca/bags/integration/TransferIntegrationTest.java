@@ -3,6 +3,7 @@ package edu.aseca.bags.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.api.TransferController.TransferRequest;
+import edu.aseca.bags.application.dto.PageResponse;
 import edu.aseca.bags.application.dto.TransferView;
 import edu.aseca.bags.persistence.SpringTransferJpaRepository;
 import edu.aseca.bags.persistence.SpringWalletJpaRepository;
@@ -44,14 +45,6 @@ public class TransferIntegrationTest {
 
 	private String getUrl() {
 		return "/transfer";
-	}
-
-	public static class PageResponse<T> {
-		public T[] content;
-		public int number;
-		public int size;
-		public int totalPages;
-		public long totalElements;
 	}
 
 	@Test
@@ -158,9 +151,9 @@ public class TransferIntegrationTest {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		PageResponse<TransferView> page = response.getBody();
 		assertNotNull(page);
-		assertEquals(1, page.content.length);
+		assertEquals(1, page.content().size());
 
-		var transfer = page.content[0];
+		var transfer = page.content().getFirst();
 		assertAll(() -> assertEquals("wallet1@gmail.com", transfer.fromEmail()),
 				() -> assertEquals("wallet2@gmail.com", transfer.toEmail()),
 				() -> assertEquals(100.0, transfer.amount()), () -> assertNotNull(transfer.timestamp()),
@@ -185,9 +178,9 @@ public class TransferIntegrationTest {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		PageResponse<TransferView> page = response.getBody();
 		assertNotNull(page);
-		assertEquals(1, page.content.length);
+		assertEquals(1, page.content().size());
 
-		var transfer = page.content[0];
+		var transfer = page.content().getFirst();
 		assertAll(() -> assertEquals("wallet1@gmail.com", transfer.fromEmail()),
 				() -> assertEquals("wallet2@gmail.com", transfer.toEmail()),
 				() -> assertEquals(10.0, transfer.amount()));
@@ -204,7 +197,7 @@ public class TransferIntegrationTest {
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
-		assertEquals(0, response.getBody().content.length);
+		assertEquals(0, response.getBody().content().size());
 	}
 
 	@Test
@@ -253,7 +246,8 @@ public class TransferIntegrationTest {
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
-		assertEquals(0, response.getBody().content.length);
+		assertEquals(0, response.getBody().content().size());
+		assertEquals(1, response.getBody().totalElements());
 	}
 
 	@Test

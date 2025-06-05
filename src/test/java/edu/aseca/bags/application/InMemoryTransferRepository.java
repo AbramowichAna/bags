@@ -1,5 +1,6 @@
 package edu.aseca.bags.application;
 
+import edu.aseca.bags.application.dto.PageResponse;
 import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.transaction.TransferNumber;
@@ -25,7 +26,7 @@ class InMemoryTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public List<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, Pagination page) {
+	public PageResponse<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, Pagination page) {
 		List<Transfer> filteredTransfers = data.values().stream()
 				.filter(transfer -> transfer.fromWallet().equals(fromWallet) || transfer.toWallet().equals(toWallet))
 				.collect(Collectors.toList());
@@ -33,10 +34,11 @@ class InMemoryTransferRepository implements TransferRepository {
 		int start = page.page() * page.size();
 		int end = Math.min(start + page.size(), filteredTransfers.size());
 		if (start > end) {
-			return List.of();
+			return new PageResponse<>(List.of(), page.page(), page.size(), 0, filteredTransfers.size());
 		}
 
-		return filteredTransfers.subList(start, end);
+		return new PageResponse<>(filteredTransfers.subList(start, end), page.page(), page.size(),
+				(int) Math.ceil((double) filteredTransfers.size() / page.size()), filteredTransfers.size());
 	}
 
 	public int count() {
