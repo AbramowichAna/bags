@@ -1,6 +1,5 @@
 package edu.aseca.bags.application;
 
-import edu.aseca.bags.application.dto.PageResponse;
 import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.transaction.TransferNumber;
@@ -11,6 +10,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 class InMemoryTransferRepository implements TransferRepository {
 	private final Map<UUID, Transfer> data = new HashMap<>();
@@ -26,7 +28,7 @@ class InMemoryTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public PageResponse<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, Pagination page) {
+	public Page<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, Pagination page) {
 		List<Transfer> filteredTransfers = data.values().stream()
 				.filter(transfer -> transfer.fromWallet().equals(fromWallet) || transfer.toWallet().equals(toWallet))
 				.collect(Collectors.toList());
@@ -34,11 +36,11 @@ class InMemoryTransferRepository implements TransferRepository {
 		int start = page.page() * page.size();
 		int end = Math.min(start + page.size(), filteredTransfers.size());
 		if (start > end) {
-			return new PageResponse<>(List.of(), page.page(), page.size(), 0, filteredTransfers.size());
+			return new PageImpl(List.of(), PageRequest.of(page.page(), page.size()), filteredTransfers.size());
 		}
 
-		return new PageResponse<>(filteredTransfers.subList(start, end), page.page(), page.size(),
-				(int) Math.ceil((double) filteredTransfers.size() / page.size()), filteredTransfers.size());
+		return new PageImpl<>(filteredTransfers.subList(start, end), PageRequest.of(page.page(), page.size()),
+				filteredTransfers.size());
 	}
 
 	public int count() {
