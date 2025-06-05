@@ -1,5 +1,6 @@
 package edu.aseca.bags.exception;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.*;
 import java.util.Locale;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -107,6 +110,11 @@ public class GlobalExceptionHandler {
 				request.getRequestURI(), null);
 	}
 
+	@ExceptionHandler(JwtException.class)
+	public ResponseEntity<ApiErrorResponse> handleSignatureException(JwtException ex, HttpServletRequest req) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(authError(req, ""));
+	}
+
 	@ExceptionHandler(InsufficientFundsException.class)
 	public ResponseEntity<?> handleInsufficientFundsException(InsufficientFundsException e,
 			HttpServletRequest request) {
@@ -124,6 +132,20 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<?> handleInvalidTransferException(InvalidTransferException e, HttpServletRequest request) {
 		return buildErrorResponse("Invalid transfer", HttpStatus.BAD_REQUEST, e.getMessage(), request.getRequestURI(),
 				null);
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ApiErrorResponse> handleNotFound(NoResourceFoundException ex, HttpServletRequest request) {
+		ApiErrorResponse error = new ApiErrorResponse("Not Found", HttpStatus.NOT_FOUND.value(),
+				"The requested resource was not found", request.getRequestURI(), Map.of());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+	}
+
+	@ExceptionHandler(NoHandlerFoundException.class)
+	public ResponseEntity<ApiErrorResponse> handleNotFound(NoHandlerFoundException ex, HttpServletRequest request) {
+		ApiErrorResponse error = new ApiErrorResponse("Not Found", HttpStatus.NOT_FOUND.value(),
+				"The requested resource was not found", request.getRequestURI(), Map.of());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
 	public record ApiErrorResponse(String title, int status, String detail, String instance,
