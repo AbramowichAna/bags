@@ -1,14 +1,13 @@
 package edu.aseca.bags.application;
 
-import edu.aseca.bags.application.dto.PageResponse;
 import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.application.dto.TransferView;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.wallet.Wallet;
 import edu.aseca.bags.exception.WalletNotFoundException;
-import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 
 public class TransferQuery {
 	private final WalletRepository walletRepository;
@@ -19,7 +18,7 @@ public class TransferQuery {
 		this.transferRepository = transferRepository;
 	}
 
-	public PageResponse<TransferView> getTransfers(Email email, Pagination page) throws WalletNotFoundException {
+	public Page<TransferView> getTransfers(Email email, Pagination page) throws WalletNotFoundException {
 		Optional<Wallet> optionalWallet = walletRepository.findByEmail(email);
 		if (optionalWallet.isEmpty()) {
 			throw new WalletNotFoundException();
@@ -28,12 +27,8 @@ public class TransferQuery {
 		return mapToTransferViewPage(transferRepository.findByFromWalletOrToWallet(wallet, wallet, page), email);
 	}
 
-	public PageResponse<TransferView> mapToTransferViewPage(PageResponse<Transfer> transferPage, Email ownerEmail) {
-
-		List<TransferView> views = transferPage.content().stream().map(t -> new TransferView(t, ownerEmail)).toList();
-
-		return new PageResponse<>(views, transferPage.number(), transferPage.size(), transferPage.totalPages(),
-				transferPage.totalElements());
+	public Page<TransferView> mapToTransferViewPage(Page<Transfer> transferPage, Email ownerEmail) {
+		return transferPage.map(t -> new TransferView(t, ownerEmail));
 	}
 
 }

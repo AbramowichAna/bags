@@ -3,7 +3,7 @@ package edu.aseca.bags.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.api.TransferController.TransferRequest;
-import edu.aseca.bags.application.dto.PageResponse;
+import edu.aseca.bags.application.JacksonPageImpl;
 import edu.aseca.bags.application.dto.TransferView;
 import edu.aseca.bags.persistence.SpringTransferJpaRepository;
 import edu.aseca.bags.persistence.SpringWalletJpaRepository;
@@ -17,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -144,20 +146,25 @@ public class TransferIntegrationTest {
 		performTransfer("wallet1@gmail.com", "wallet2@gmail.com", 100.0);
 
 		HttpEntity<Void> request = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferView>> response = restTemplate.exchange(getUrl(), HttpMethod.GET, request,
-				new ParameterizedTypeReference<>() {
-				});
+		var response = performGet(request);
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		PageResponse<TransferView> page = response.getBody();
+		Page<TransferView> page = response.getBody();
 		assertNotNull(page);
-		assertEquals(1, page.content().size());
+		assertEquals(1, page.getContent().size());
 
-		var transfer = page.content().getFirst();
+		var transfer = page.getContent().getFirst();
 		assertAll(() -> assertEquals("wallet1@gmail.com", transfer.fromEmail()),
 				() -> assertEquals("wallet2@gmail.com", transfer.toEmail()),
 				() -> assertEquals(100.0, transfer.amount()), () -> assertNotNull(transfer.timestamp()),
 				() -> assertNotNull(transfer.transferNumber()));
+	}
+
+	private ResponseEntity<JacksonPageImpl<TransferView>> performGet(HttpEntity<Void> request) {
+		ResponseEntity<JacksonPageImpl<TransferView>> response = restTemplate.exchange(getUrl(), HttpMethod.GET,
+				request, new ParameterizedTypeReference<>() {
+				});
+		return response;
 	}
 
 	@Test
@@ -171,16 +178,15 @@ public class TransferIntegrationTest {
 		performTransfer("wallet3@gmail.com", "wallet2@gmail.com", 20.0);
 
 		HttpEntity<Void> request = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferView>> response = restTemplate.exchange(getUrl(), HttpMethod.GET, request,
-				new ParameterizedTypeReference<>() {
-				});
+
+		var response = performGet(request);
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		PageResponse<TransferView> page = response.getBody();
+		Page<TransferView> page = response.getBody();
 		assertNotNull(page);
-		assertEquals(1, page.content().size());
+		assertEquals(1, page.getContent().size());
 
-		var transfer = page.content().getFirst();
+		var transfer = page.getContent().getFirst();
 		assertAll(() -> assertEquals("wallet1@gmail.com", transfer.fromEmail()),
 				() -> assertEquals("wallet2@gmail.com", transfer.toEmail()),
 				() -> assertEquals(10.0, transfer.amount()));
@@ -191,13 +197,13 @@ public class TransferIntegrationTest {
 		createWallet("wallet1@gmail.com", 100);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferView>> response = restTemplate.exchange(getUrl() + "?page=0&size=10",
+		ResponseEntity<JacksonPageImpl<TransferView>> response = restTemplate.exchange(getUrl() + "?page=0&size=10",
 				HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
 				});
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
-		assertEquals(0, response.getBody().content().size());
+		assertEquals(0, response.getBody().getContent().size());
 	}
 
 	@Test
@@ -240,14 +246,14 @@ public class TransferIntegrationTest {
 		performTransfer("wallet1@gmail.com", "wallet2@gmail.com", 10);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferView>> response = restTemplate.exchange(getUrl() + "?page=100&size=10",
+		ResponseEntity<JacksonPageImpl<TransferView>> response = restTemplate.exchange(getUrl() + "?page=100&size=10",
 				HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
 				});
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
-		assertEquals(0, response.getBody().content().size());
-		assertEquals(1, response.getBody().totalElements());
+		assertEquals(0, response.getBody().getContent().size());
+		assertEquals(1, response.getBody().getTotalElements());
 	}
 
 	@Test
