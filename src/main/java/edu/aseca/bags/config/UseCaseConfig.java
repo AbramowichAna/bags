@@ -1,5 +1,6 @@
 package edu.aseca.bags.config;
 
+import edu.aseca.bags.application.*;
 import edu.aseca.bags.application.CreateWalletUseCase;
 import edu.aseca.bags.application.PasswordEncoder;
 import edu.aseca.bags.application.WalletQuery;
@@ -16,7 +17,18 @@ public class UseCaseConfig {
 	}
 
 	@Bean
+	public TransferUseCase transferUseCase(WalletRepository walletRepository, TransferRepository transferRepository,
+			TransferNumberGenerator transferNumberGenerator) {
+		return new TransferUseCase(walletRepository, transferRepository, transferNumberGenerator);
+	}
+
+	@Bean
 	public WalletQuery walletQuery(WalletRepository walletRepository) {
 		return new WalletQuery(walletRepository);
+	}
+
+	@Bean
+	public TransferQuery transferQuery(WalletRepository walletRepository, TransferRepository transferRepository) {
+		return new TransferQuery(walletRepository, transferRepository);
 	}
 }

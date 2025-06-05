@@ -1,5 +1,6 @@
 package edu.aseca.bags.testutil;
 
+import edu.aseca.bags.application.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
@@ -14,9 +15,15 @@ public class TestWalletFactory {
 		return new Wallet(new Email(email), new Password(encoder.encode(rawPassword)));
 	}
 
-	public static Wallet createWallet(String email, String password, int i) {
+	public static Wallet createWallet(String email, String password, double i) {
 		Wallet wallet = new Wallet(new Email(email), new Password(encoder.encode(password)));
 		wallet.addBalance(Money.of(i));
+		return wallet;
+	}
+
+	public static Wallet createAndSave(WalletRepository repo, String email, String password, double balance) {
+		Wallet wallet = TestWalletFactory.createWallet(email, password, balance);
+		repo.save(wallet);
 		return wallet;
 	}
 }

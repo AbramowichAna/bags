@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "edu.aseca"
-version = "0.0.1"
+version = "0.1.1"
 
 java {
 	toolchain {
@@ -43,6 +43,10 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	testImplementation("org.springframework.boot:spring-boot-testcontainers")
+	testImplementation("org.testcontainers:postgresql:1.19.1")
+	testImplementation("org.testcontainers:junit-jupiter:1.19.1")
 }
 
 tasks.register("printVersion") {

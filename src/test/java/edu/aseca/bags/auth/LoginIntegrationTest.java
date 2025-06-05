@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.aseca.bags.api.dto.AuthRequest;
 import edu.aseca.bags.api.dto.AuthResponse;
 import edu.aseca.bags.api.dto.CreateWalletRequest;
+import edu.aseca.bags.integration.TestcontainersConfiguration;
 import edu.aseca.bags.persistence.SpringWalletJpaRepository;
 import edu.aseca.bags.persistence.WalletMapper;
 import edu.aseca.bags.testutil.TestWalletFactory;
@@ -18,11 +19,13 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("integration")
+@Import(TestcontainersConfiguration.class)
 public class LoginIntegrationTest {
 
 	@Autowired
