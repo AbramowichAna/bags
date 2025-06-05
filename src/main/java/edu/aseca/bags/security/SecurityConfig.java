@@ -29,8 +29,7 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		return http.csrf(AbstractHttpConfigurer::disable)
-				.cors(Customizer.withDefaults())
+		return http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
 				.exceptionHandling(e -> e.authenticationEntryPoint((request, response, authException) -> response
 						.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")))
 				.authorizeHttpRequests(
