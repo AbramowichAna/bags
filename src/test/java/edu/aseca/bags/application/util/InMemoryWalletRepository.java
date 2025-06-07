@@ -1,6 +1,6 @@
 package edu.aseca.bags.application.util;
 
-import edu.aseca.bags.application.WalletRepository;
+import edu.aseca.bags.application.interfaces.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.participant.Wallet;
 import java.util.HashMap;

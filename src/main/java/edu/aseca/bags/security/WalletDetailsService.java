@@ -1,6 +1,6 @@
 package edu.aseca.bags.security;
 
-import edu.aseca.bags.application.WalletRepository;
+import edu.aseca.bags.application.interfaces.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.exception.WalletNotFoundException;

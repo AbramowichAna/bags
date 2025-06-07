@@ -3,8 +3,7 @@ package edu.aseca.bags.domain.participant;
 import edu.aseca.bags.domain.email.Email;
 import java.util.Objects;
 
-public record ExternalAccount(String externalServiceName, ServiceType serviceType,
-		String email) implements Participant {
+public record ExternalAccount(String externalServiceName, ServiceType serviceType, Email email) implements Participant {
 	public ExternalAccount {
 		Objects.requireNonNull(externalServiceName, "Name of external service must not be null");
 		Objects.requireNonNull(serviceType, "Type of external service must not be null");
@@ -23,6 +22,6 @@ public record ExternalAccount(String externalServiceName, ServiceType serviceTyp
 
 	@Override
 	public Email getEmail() {
-		return new Email(email);
+		return email;
 	}
 }

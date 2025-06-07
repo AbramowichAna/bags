@@ -1,7 +1,7 @@
 package edu.aseca.bags.application.util;
 
-import edu.aseca.bags.application.TransferRepository;
 import edu.aseca.bags.application.dto.Pagination;
+import edu.aseca.bags.application.interfaces.TransferRepository;
 import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.transaction.TransferNumber;

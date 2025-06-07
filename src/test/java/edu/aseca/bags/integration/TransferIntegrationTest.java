@@ -3,10 +3,10 @@ package edu.aseca.bags.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.api.TransferController.TransferRequest;
-import edu.aseca.bags.application.dto.TransferView;
-import edu.aseca.bags.persistence.SpringTransferJpaRepository;
-import edu.aseca.bags.persistence.SpringWalletJpaRepository;
-import edu.aseca.bags.persistence.WalletEntity;
+import edu.aseca.bags.application.dto.MovementView;
+import edu.aseca.bags.persistence.entity.WalletEntity;
+import edu.aseca.bags.persistence.repository.SpringMovementJpaRepository;
+import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
 import edu.aseca.bags.testutil.JwtTestUtil;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +28,7 @@ public class TransferIntegrationTest {
 	private TestRestTemplate restTemplate;
 
 	@Autowired
-	private SpringTransferJpaRepository springTransferJpaRepository;
+	private SpringMovementJpaRepository springMovementJpaRepository;
 
 	@Autowired
 	private SpringWalletJpaRepository springWalletJpaRepository;
@@ -38,7 +38,7 @@ public class TransferIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
-		springTransferJpaRepository.deleteAll();
+		springMovementJpaRepository.deleteAll();
 		springWalletJpaRepository.deleteAll();
 	}
 
@@ -63,7 +63,7 @@ public class TransferIntegrationTest {
 		ResponseEntity<Void> response = performTransfer("wallet1@gmail.com", "wallet2@gmail.com", 100.0);
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(1, springTransferJpaRepository.findAll().size());
+		assertEquals(1, springMovementJpaRepository.findAll().size());
 	}
 
 	@Test
@@ -151,20 +151,20 @@ public class TransferIntegrationTest {
 		performTransfer("wallet1@gmail.com", "wallet2@gmail.com", 100.0);
 
 		HttpEntity<Void> request = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferView>> response = restTemplate.exchange(getUrl(), HttpMethod.GET, request,
+		ResponseEntity<PageResponse<MovementView>> response = restTemplate.exchange(getUrl(), HttpMethod.GET, request,
 				new ParameterizedTypeReference<>() {
 				});
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		PageResponse<TransferView> page = response.getBody();
+		PageResponse<MovementView> page = response.getBody();
 		assertNotNull(page);
 		assertEquals(1, page.content.length);
 
 		var transfer = page.content[0];
-		assertAll(() -> assertEquals("wallet1@gmail.com", transfer.fromEmail()),
-				() -> assertEquals("wallet2@gmail.com", transfer.toEmail()),
-				() -> assertEquals(100.0, transfer.amount()), () -> assertNotNull(transfer.timestamp()),
-				() -> assertNotNull(transfer.transferNumber()));
+		assertAll(() -> assertEquals("wallet1@gmail.com", transfer.fromParticipant().email()),
+				() -> assertEquals("wallet2@gmail.com", transfer.toParticipant().email()),
+				() -> assertEquals(100.0, transfer.amount().doubleValue()), () -> assertNotNull(transfer.timestamp()),
+				() -> assertNotNull(transfer.id()));
 	}
 
 	@Test
@@ -178,19 +178,19 @@ public class TransferIntegrationTest {
 		performTransfer("wallet3@gmail.com", "wallet2@gmail.com", 20.0);
 
 		HttpEntity<Void> request = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferView>> response = restTemplate.exchange(getUrl(), HttpMethod.GET, request,
+		ResponseEntity<PageResponse<MovementView>> response = restTemplate.exchange(getUrl(), HttpMethod.GET, request,
 				new ParameterizedTypeReference<>() {
 				});
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
-		PageResponse<TransferView> page = response.getBody();
+		PageResponse<MovementView> page = response.getBody();
 		assertNotNull(page);
 		assertEquals(1, page.content.length);
 
 		var transfer = page.content[0];
-		assertAll(() -> assertEquals("wallet1@gmail.com", transfer.fromEmail()),
-				() -> assertEquals("wallet2@gmail.com", transfer.toEmail()),
-				() -> assertEquals(10.0, transfer.amount()));
+		assertAll(() -> assertEquals("wallet1@gmail.com", transfer.fromParticipant().email()),
+				() -> assertEquals("wallet2@gmail.com", transfer.toParticipant().email()),
+				() -> assertEquals(10.0, transfer.amount().doubleValue()));
 	}
 
 	@Test
@@ -198,7 +198,7 @@ public class TransferIntegrationTest {
 		createWallet("wallet1@gmail.com", 100);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferView>> response = restTemplate.exchange(getUrl() + "?page=0&size=10",
+		ResponseEntity<PageResponse<MovementView>> response = restTemplate.exchange(getUrl() + "?page=0&size=10",
 				HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
 				});
 
@@ -247,7 +247,7 @@ public class TransferIntegrationTest {
 		performTransfer("wallet1@gmail.com", "wallet2@gmail.com", 10);
 
 		var entity = new HttpEntity<>(authHeadersFor("wallet1@gmail.com"));
-		ResponseEntity<PageResponse<TransferView>> response = restTemplate.exchange(getUrl() + "?page=100&size=10",
+		ResponseEntity<PageResponse<MovementView>> response = restTemplate.exchange(getUrl() + "?page=100&size=10",
 				HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
 				});
 

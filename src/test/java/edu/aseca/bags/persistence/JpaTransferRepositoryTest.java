@@ -9,31 +9,31 @@ import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.domain.transaction.TransferNumber;
+import edu.aseca.bags.persistence.repository.JpaTransferRepository;
+import edu.aseca.bags.persistence.repository.JpaWalletRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-@DataJpaTest
+@SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class JpaTransferRepositoryTest {
 
 	@Autowired
-	private SpringTransferJpaRepository transferRepository;
+	private JpaTransferRepository transferRepository;
 
 	@Autowired
-	private SpringWalletJpaRepository walletRepository;
+	private JpaWalletRepository walletRepository;
 
 	@Test
 	void saveTransferPersistsDataCorrectly_001() {
-
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
-				this.walletRepository);
-		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
 
 		Wallet fromWallet = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
 		fromWallet.addBalance(new Money(100.0));
@@ -62,17 +62,13 @@ public class JpaTransferRepositoryTest {
 
 	@Test
 	void findByIdReturnsEmptyWhenTransferDoesNotExist_002() {
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
-				this.walletRepository);
+
 		Optional<Transfer> transfer = transferRepository.findByTransferNumber(TransferNumber.of(UUID.randomUUID()));
 		assertFalse(transfer.isPresent(), "Should return empty when transfer does not exist");
 	}
 
 	@Test
 	void findAllTransfersOfaWalletReturnsCorrectTransfers_003() {
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
-				this.walletRepository);
-		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
 
 		Wallet wallet1 = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
 		wallet1.addBalance(new Money(100.0));
@@ -100,9 +96,6 @@ public class JpaTransferRepositoryTest {
 
 	@Test
 	void findTransfersWithPagination_004() {
-		JpaTransferRepository transferRepository = new JpaTransferRepository(this.transferRepository,
-				this.walletRepository);
-		JpaWalletRepository walletRepository = new JpaWalletRepository(this.walletRepository);
 
 		Wallet wallet1 = new Wallet(new Email("wallet1@gmail.com"), new Password("wallet123"));
 		wallet1.addBalance(new Money(100.0));

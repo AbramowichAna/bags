@@ -8,6 +8,7 @@ import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.domain.participant.Wallet;
+import edu.aseca.bags.testutil.TestExternalAccountFactory;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,8 @@ class ExternalLoadTest {
 		Money amount = new Money(100.0);
 		Instant timestamp = Instant.now();
 
-		ExternalAccount externalAccount = new ExternalAccount("BANK_TRANSFER", ServiceType.BANK, "bank@bank.com");
+		ExternalAccount externalAccount = TestExternalAccountFactory.createExternalAccount("BANK_TRANSFER",
+				ServiceType.BANK, "bank@bank.com");
 
 		ExternalLoad load = new ExternalLoad(UUID.randomUUID(), wallet, amount, timestamp, externalAccount);
 
@@ -36,7 +38,8 @@ class ExternalLoadTest {
 		Wallet wallet = new Wallet(new Email("user@gmail.com"), new Password("hola12345"));
 		Money amount = new Money(100.0);
 		Instant timestamp = Instant.now();
-		ExternalAccount externalAccount = new ExternalAccount("BANK_TRANSFER", ServiceType.BANK, "bank@bank.com");
+		ExternalAccount externalAccount = TestExternalAccountFactory.createExternalAccount("BANK_TRANSFER",
+				ServiceType.BANK, "bank@bank.com");
 
 		assertThrows(NullPointerException.class,
 				() -> new ExternalLoad(null, wallet, amount, timestamp, externalAccount));

@@ -1,42 +1,63 @@
 package edu.aseca.bags.application;
 
 import edu.aseca.bags.api.dto.ExternalLoadRequest;
-import edu.aseca.bags.api.dto.ExternalLoadResponse;
+import edu.aseca.bags.application.dto.MovementView;
+import edu.aseca.bags.application.interfaces.*;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.domain.participant.Wallet;
-import edu.aseca.bags.domain.transaction.ExternalLoad;
+import edu.aseca.bags.domain.transaction.Movement;
+import edu.aseca.bags.domain.transaction.MovementType;
+import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
 
 public class ExternalLoadUseCase {
 
 	private final WalletRepository walletRepository;
-	private final ExternalLoadRepository externalLoadRepository;
+	private final MovementRepository movementRepository;
+	private final ExternalAccountRepository externalAccountRepository;
+	private final MovementIdGenerator generator;
 
-	public ExternalLoadUseCase(WalletRepository walletRepository, ExternalLoadRepository externalLoadRepository) {
+	public ExternalLoadUseCase(WalletRepository walletRepository, MovementRepository movementRepository,
+			ExternalAccountRepository externalAccountRepository, MovementIdGenerator generator) {
 		this.walletRepository = walletRepository;
-		this.externalLoadRepository = externalLoadRepository;
+		this.movementRepository = movementRepository;
+		this.externalAccountRepository = externalAccountRepository;
+		this.generator = generator;
 	}
 
-	public ExternalLoadResponse loadFromExternal(ExternalLoadRequest request) throws WalletNotFoundException {
+	public MovementView loadFromExternal(ExternalLoadRequest request) throws WalletNotFoundException {
 
-		String wallet = request.walletEmail();
+		Email walletEmail = new Email(request.walletEmail());
 		BigDecimal amount = request.amount();
 		String externalServiceName = request.externalServiceName();
 		String externalServiceType = request.externalServiceType();
 		String externalServiceEmail = request.externalServiceEmail();
-		String externalTransactionId = request.externalTransactionId();
-		Optional<Wallet> optionalToWallet = walletRepository.findByEmail(new Email(wallet));
+		TransferNumber transactionUuid = generator.generate();
 		Instant timestamp = Instant.now();
+		Wallet wallet = walletRepository.findByEmail(walletEmail).orElseThrow(WalletNotFoundException::new);
 
-		Wallet toWallet = optionalToWallet.orElseThrow(WalletNotFoundException::new);
+		validateExternalLoad(amount, transactionUuid);
 
+		wallet.addBalance(new Money(amount.doubleValue()));
+		walletRepository.save(wallet);
+
+		ExternalAccount externalAccount = getExternalAccount(externalServiceName, externalServiceType,
+				externalServiceEmail);
+		externalAccountRepository.save(externalAccount);
+
+		Movement movement = new Movement(transactionUuid, externalAccount, wallet, timestamp,
+				new Money(amount.doubleValue()), MovementType.EXTERNAL_IN);
+		movementRepository.save(movement);
+
+		return MovementView.from(movement, walletEmail);
+	}
+
+	private void validateExternalLoad(BigDecimal amount, TransferNumber id) {
 		if (amount == null) {
 			throw new IllegalArgumentException("Amount must not be null");
 		}
@@ -44,24 +65,16 @@ public class ExternalLoadUseCase {
 			throw new IllegalArgumentException("Amount must be greater than zero");
 		}
 
-		UUID transactionUuid = UUID.fromString(externalTransactionId);
-		if (externalLoadRepository.existsByTransactionId(transactionUuid)) {
+		if (movementRepository.findById(id).isPresent()) {
 			throw new IllegalArgumentException("External reference already used");
 		}
+	}
 
-		toWallet.addBalance(new Money(amount.doubleValue()));
-		walletRepository.save(toWallet);
-
-		ExternalAccount externalAccount = new ExternalAccount(externalServiceName,
-				ServiceType.fromString(externalServiceType), externalServiceEmail);
-
-		ExternalLoad externalLoad = new ExternalLoad(UUID.fromString(externalTransactionId), toWallet,
-				new Money(amount.doubleValue()), timestamp, externalAccount);
-		externalLoadRepository.save(externalLoad);
-
-		return new ExternalLoadResponse(externalLoad.toWallet().getEmail().address(), externalLoad.amount().amount(),
-				externalLoad.externalAccount().externalServiceName(),
-				externalLoad.externalAccount().serviceType().name(), externalLoad.externalAccount().email(),
-				externalLoad.transactionId().toString(), timestamp, "SUCCESS");
+	private ExternalAccount getExternalAccount(String externalServiceName, String externalServiceType,
+			String externalServiceEmail) {
+		return externalAccountRepository
+				.findByServiceNameAndServiceTypeAndEmail(externalServiceName, externalServiceType, externalServiceEmail)
+				.orElse(new ExternalAccount(externalServiceName, ServiceType.fromString(externalServiceType),
+						new Email(externalServiceEmail)));
 	}
 }

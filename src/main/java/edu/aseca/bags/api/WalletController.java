@@ -1,7 +1,7 @@
 package edu.aseca.bags.api;
 
-import edu.aseca.bags.application.WalletQuery;
 import edu.aseca.bags.application.dto.WalletInfo;
+import edu.aseca.bags.application.queries.WalletQuery;
 import edu.aseca.bags.exception.BadPermissionException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.security.SecurityService;

@@ -3,12 +3,11 @@ package edu.aseca.bags.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.api.dto.ExternalLoadRequest;
-import edu.aseca.bags.api.dto.ExternalLoadResponse;
-import edu.aseca.bags.persistence.SpringExternalLoadJpaRepository;
-import edu.aseca.bags.persistence.SpringWalletJpaRepository;
-import edu.aseca.bags.persistence.WalletEntity;
+import edu.aseca.bags.application.dto.MovementView;
+import edu.aseca.bags.persistence.entity.WalletEntity;
+import edu.aseca.bags.persistence.repository.SpringMovementJpaRepository;
+import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
 import java.math.BigDecimal;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +29,11 @@ public class ExternalLoadIntegrationTest {
 	private SpringWalletJpaRepository walletJpaRepository;
 
 	@Autowired
-	private SpringExternalLoadJpaRepository externalLoadJpaRepository;
+	private SpringMovementJpaRepository movementJpaRepository;
 
 	@BeforeEach
 	void setUp() {
-		externalLoadJpaRepository.deleteAll();
+		movementJpaRepository.deleteAll();
 		walletJpaRepository.deleteAll();
 	}
 
@@ -52,8 +51,8 @@ public class ExternalLoadIntegrationTest {
 	}
 
 	private ExternalLoadRequest makeRequest(String walletEmail, BigDecimal amount, String serviceName,
-			String serviceType, String serviceEmail, String transactionId) {
-		return new ExternalLoadRequest(walletEmail, amount, serviceName, serviceType, serviceEmail, transactionId);
+			String serviceType, String serviceEmail) {
+		return new ExternalLoadRequest(walletEmail, amount, serviceName, serviceType, serviceEmail);
 	}
 
 	@Test
@@ -62,26 +61,26 @@ public class ExternalLoadIntegrationTest {
 		createWallet(email, 0);
 
 		ExternalLoadRequest request = makeRequest(email, BigDecimal.valueOf(150.0), "BANK_TRANSFER", "BANK",
-				"bank@bank.com", UUID.randomUUID().toString());
+				"bank@bank.com");
 
 		HttpEntity<ExternalLoadRequest> entity = new HttpEntity<>(request, headersWithToken());
-		ResponseEntity<ExternalLoadResponse> response = restTemplate.postForEntity("/external-load", entity,
-				ExternalLoadResponse.class);
+		ResponseEntity<MovementView> response = restTemplate.postForEntity("/external-load", entity,
+				MovementView.class);
 
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
-		assertEquals(email, response.getBody().walletEmail());
-		assertEquals(150.0, response.getBody().amount());
-		assertEquals("BANK_TRANSFER", response.getBody().externalServiceName());
-		assertEquals("BANK", response.getBody().externalServiceType());
-		assertEquals("bank@bank.com", response.getBody().externalServiceEmail());
-		assertEquals("SUCCESS", response.getBody().status());
+		assertEquals(email, response.getBody().toParticipant().email());
+		assertEquals(150.0, response.getBody().amount().doubleValue());
+		assertEquals("BANK_TRANSFER", response.getBody().fromParticipant().serviceName());
+		assertEquals("BANK", response.getBody().fromParticipant().serviceType());
+		assertEquals("bank@bank.com", response.getBody().fromParticipant().email());
+
 	}
 
 	@Test
 	void shouldFailWithNonExistentWallet_002() {
 		ExternalLoadRequest request = makeRequest("notfound@gmail.com", BigDecimal.valueOf(100.0), "BANK_TRANSFER",
-				"BANK", "bank@bank.com", UUID.randomUUID().toString());
+				"BANK", "bank@bank.com");
 
 		HttpEntity<ExternalLoadRequest> entity = new HttpEntity<>(request, headersWithToken());
 		ResponseEntity<String> response = restTemplate.postForEntity("/external-load", entity, String.class);
@@ -95,7 +94,7 @@ public class ExternalLoadIntegrationTest {
 		createWallet(email, 0);
 
 		ExternalLoadRequest request = makeRequest(email, BigDecimal.valueOf(-10.0), "BANK_TRANSFER", "BANK",
-				"bank@bank.com", UUID.randomUUID().toString());
+				"bank@bank.com");
 
 		HttpEntity<ExternalLoadRequest> entity = new HttpEntity<>(request, headersWithToken());
 		ResponseEntity<String> response = restTemplate.postForEntity("/external-load", entity, String.class);
@@ -108,8 +107,7 @@ public class ExternalLoadIntegrationTest {
 		String email = "wallet3@gmail.com";
 		createWallet(email, 0);
 
-		ExternalLoadRequest request = makeRequest(email, null, "BANK_TRANSFER", "BANK", "bank@bank.com",
-				UUID.randomUUID().toString());
+		ExternalLoadRequest request = makeRequest(email, null, "BANK_TRANSFER", "BANK", "bank@bank.com");
 
 		HttpEntity<ExternalLoadRequest> entity = new HttpEntity<>(request, headersWithToken());
 		ResponseEntity<String> response = restTemplate.postForEntity("/external-load", entity, String.class);
@@ -123,7 +121,7 @@ public class ExternalLoadIntegrationTest {
 		createWallet(email, 0);
 
 		ExternalLoadRequest request = makeRequest(email, BigDecimal.valueOf(50.0), "BANK_TRANSFER", "BANK",
-				"bank@bank.com", UUID.randomUUID().toString());
+				"bank@bank.com");
 
 		HttpEntity<ExternalLoadRequest> entityNoToken = new HttpEntity<>(request);
 		ResponseEntity<String> responseNoToken = restTemplate.postForEntity("/external-load", entityNoToken,
@@ -142,7 +140,7 @@ public class ExternalLoadIntegrationTest {
 	@Test
 	void shouldFailWithMissingEmail_006() {
 		ExternalLoadRequest request = makeRequest(null, BigDecimal.valueOf(100.0), "BANK_TRANSFER", "BANK",
-				"bank@bank.com", UUID.randomUUID().toString());
+				"bank@bank.com");
 		HttpEntity<ExternalLoadRequest> entity = new HttpEntity<>(request, headersWithToken());
 		ResponseEntity<String> response = restTemplate.postForEntity("/external-load", entity, String.class);
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -153,32 +151,18 @@ public class ExternalLoadIntegrationTest {
 		String email = "wallet5@gmail.com";
 		createWallet(email, 0);
 		ExternalLoadRequest request = makeRequest(email, BigDecimal.valueOf(50.0), "BANK_TRANSFER", "INVALID_TYPE",
-				"bank@bank.com", UUID.randomUUID().toString());
+				"bank@bank.com");
 		HttpEntity<ExternalLoadRequest> entity = new HttpEntity<>(request, headersWithToken());
 		ResponseEntity<String> response = restTemplate.postForEntity("/external-load", entity, String.class);
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
 
 	@Test
-	void shouldFailWithDuplicateExternalReference_008() {
-		String email = "wallet6@gmail.com";
-		createWallet(email, 0);
-		String reference = UUID.randomUUID().toString();
-		ExternalLoadRequest request = makeRequest(email, BigDecimal.valueOf(100.0), "BANK_TRANSFER", "BANK",
-				"bank@bank.com", reference);
-		HttpEntity<ExternalLoadRequest> entity = new HttpEntity<>(request, headersWithToken());
-		restTemplate.postForEntity("/external-load", entity, String.class);
-
-		ResponseEntity<String> response = restTemplate.postForEntity("/external-load", entity, String.class);
-		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-	}
-
-	@Test
-	void shouldFailWithEmptyToken_009() {
+	void shouldFailWithEmptyToken_008() {
 		String email = "wallet7@gmail.com";
 		createWallet(email, 0);
 		ExternalLoadRequest request = makeRequest(email, BigDecimal.valueOf(100.0), "BANK_TRANSFER", "BANK",
-				"bank@bank.com", UUID.randomUUID().toString());
+				"bank@bank.com");
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("X-API-TOKEN", "");
 		headers.setContentType(MediaType.APPLICATION_JSON);

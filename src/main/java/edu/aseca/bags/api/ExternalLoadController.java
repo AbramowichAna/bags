@@ -3,6 +3,7 @@ package edu.aseca.bags.api;
 import edu.aseca.bags.api.dto.ExternalLoadRequest;
 import edu.aseca.bags.api.dto.ExternalLoadResponse;
 import edu.aseca.bags.application.ExternalLoadUseCase;
+import edu.aseca.bags.application.dto.MovementView;
 import edu.aseca.bags.exception.InvalidApiTokenException;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import jakarta.validation.Valid;
@@ -26,12 +27,12 @@ public class ExternalLoadController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ExternalLoadResponse> externalLoad(@Valid @RequestBody ExternalLoadRequest request,
+	public ResponseEntity<MovementView> externalLoad(@Valid @RequestBody ExternalLoadRequest request,
 			@RequestHeader(value = "X-API-TOKEN", required = false) String token) throws WalletNotFoundException {
 		if (!apiToken.equals(token)) {
 			throw new InvalidApiTokenException("Invalid API token");
 		}
-		ExternalLoadResponse response = externalLoadUseCase.loadFromExternal(request);
+		MovementView response = externalLoadUseCase.loadFromExternal(request);
 		return ResponseEntity.ok(response);
 	}
 }

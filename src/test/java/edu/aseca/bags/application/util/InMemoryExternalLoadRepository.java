@@ -1,6 +1,6 @@
 package edu.aseca.bags.application.util;
 
-import edu.aseca.bags.application.ExternalLoadRepository;
+import edu.aseca.bags.application.interfaces.ExternalLoadRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.transaction.ExternalLoad;
 import java.util.HashMap;
@@ -14,16 +14,6 @@ public class InMemoryExternalLoadRepository implements ExternalLoadRepository {
 	@Override
 	public void save(ExternalLoad externalLoad) {
 		data.put(externalLoad.transactionId(), externalLoad);
-	}
-
-	@Override
-	public boolean existsByTransactionId(UUID transactionUuid) {
-		return data.containsKey(transactionUuid);
-	}
-
-	@Override
-	public List<ExternalLoad> findByToWalletEmail(Email walletEmail) {
-		return data.values().stream().filter(load -> load.toWallet().getEmail().equals(walletEmail)).toList();
 	}
 
 	public int count() {

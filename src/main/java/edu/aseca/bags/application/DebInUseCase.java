@@ -1,6 +1,7 @@
 package edu.aseca.bags.application;
 
 import edu.aseca.bags.application.clients.ExternalApiClient;
+import edu.aseca.bags.application.interfaces.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.ExternalAccount;
@@ -23,8 +24,9 @@ public class DebInUseCase {
 			String password) throws UnsupportedExternalService, WalletNotFoundException {
 
 		Wallet wallet = walletRepository.findByEmail(walletEmail).orElseThrow(WalletNotFoundException::new);
+		Email externalEmail = new Email(email);
 
-		ExternalAccount externalAccount = new ExternalAccount(externalServiceName, type, email);
+		ExternalAccount externalAccount = new ExternalAccount(externalServiceName, type, externalEmail);
 		boolean verified = externalApiClient.verifyCredentials(externalAccount, password);
 		if (!verified) {
 			throw new IllegalArgumentException("External account credentials are invalid");
@@ -36,12 +38,14 @@ public class DebInUseCase {
 	public void requestLoadFromExternalService(Email walletEmail, String externalServiceName, ServiceType type,
 			String email, double amount) throws UnsupportedExternalService, WalletNotFoundException {
 
+		Email externalEmail = new Email(email);
+
 		if (!externalApiClient.isSupportedService(externalServiceName, type)) {
 			throw new UnsupportedExternalService(externalServiceName);
 		}
 
 		Wallet wallet = walletRepository.findByEmail(walletEmail).orElseThrow(WalletNotFoundException::new);
-		ExternalAccount externalAccount = new ExternalAccount(externalServiceName, type, email);
+		ExternalAccount externalAccount = new ExternalAccount(externalServiceName, type, externalEmail);
 
 		if (!wallet.isLinkedTo(externalAccount)) {
 			throw new IllegalArgumentException("Wallet is not linked to external account");

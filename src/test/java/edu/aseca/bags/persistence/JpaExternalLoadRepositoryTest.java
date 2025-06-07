@@ -10,6 +10,13 @@ import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.ExternalLoad;
 import edu.aseca.bags.exception.WalletNotFoundException;
+import edu.aseca.bags.persistence.entity.ExternalLoadEntity;
+import edu.aseca.bags.persistence.entity.WalletEntity;
+import edu.aseca.bags.persistence.mapper.WalletMapper;
+import edu.aseca.bags.persistence.repository.JpaExternalLoadRepository;
+import edu.aseca.bags.persistence.repository.SpringExternalLoadJpaRepository;
+import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
+import edu.aseca.bags.testutil.TestExternalAccountFactory;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
@@ -17,9 +24,13 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-@DataJpaTest
+@SpringBootTest
+@ActiveProfiles("test")
+@Transactional
 class JpaExternalLoadRepositoryTest {
 
 	@Autowired
@@ -27,12 +38,15 @@ class JpaExternalLoadRepositoryTest {
 
 	@Autowired
 	private SpringWalletJpaRepository walletJpaRepository;
+	@Autowired
+	private WalletMapper walletMapper;
 
 	private JpaExternalLoadRepository jpaExternalLoadRepository;
 
 	@BeforeEach
 	void setUp() {
-		jpaExternalLoadRepository = new JpaExternalLoadRepository(externalLoadJpaRepository, walletJpaRepository);
+		jpaExternalLoadRepository = new JpaExternalLoadRepository(externalLoadJpaRepository, walletJpaRepository,
+				walletMapper);
 		walletJpaRepository.deleteAll();
 		externalLoadJpaRepository.deleteAll();
 	}
@@ -51,7 +65,8 @@ class JpaExternalLoadRepositoryTest {
 		String serviceName = "BANK_TRANSFER";
 		ServiceType serviceType = ServiceType.BANK;
 		String serviceEmail = "bank@bank.com";
-		ExternalAccount externalAccount = new ExternalAccount(serviceName, serviceType, serviceEmail);
+		ExternalAccount externalAccount = TestExternalAccountFactory.createExternalAccount(serviceName, serviceType,
+				serviceEmail);
 
 		ExternalLoad externalLoad = new ExternalLoad(txId, wallet, amount, now, externalAccount);
 
@@ -67,6 +82,6 @@ class JpaExternalLoadRepositoryTest {
 		assertEquals(serviceName, entity.getExternalServiceName());
 		assertEquals(serviceType.name(), entity.getExternalServiceType());
 		assertEquals(serviceEmail, entity.getExternalServiceEmail());
-		assertEquals(email, entity.getToWallet().getEmail());
+		assertEquals(email, entity.getToWallet().getEmail().address());
 	}
 }

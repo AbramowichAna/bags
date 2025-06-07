@@ -1,5 +1,7 @@
 package edu.aseca.bags.application;
 
+import edu.aseca.bags.application.interfaces.PasswordEncoder;
+import edu.aseca.bags.application.interfaces.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.email.RawPassword;

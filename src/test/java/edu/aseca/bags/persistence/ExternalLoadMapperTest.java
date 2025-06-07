@@ -9,6 +9,10 @@ import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.ExternalLoad;
+import edu.aseca.bags.persistence.entity.ExternalLoadEntity;
+import edu.aseca.bags.persistence.entity.WalletEntity;
+import edu.aseca.bags.persistence.mapper.ExternalLoadMapper;
+import edu.aseca.bags.testutil.TestExternalAccountFactory;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -26,7 +30,8 @@ class ExternalLoadMapperTest {
 		String serviceName = "BANK_TRANSFER";
 		ServiceType serviceType = ServiceType.BANK;
 		String serviceEmail = "bank@bank.com";
-		ExternalAccount externalAccount = new ExternalAccount(serviceName, serviceType, serviceEmail);
+		ExternalAccount externalAccount = TestExternalAccountFactory.createExternalAccount(serviceName, serviceType,
+				serviceEmail);
 
 		WalletEntity walletEntity = new WalletEntity("test@example.com", "hash", BigDecimal.ZERO);
 
@@ -67,6 +72,6 @@ class ExternalLoadMapperTest {
 		assertEquals(now, domain.timestamp());
 		assertEquals(serviceName, domain.externalAccount().externalServiceName());
 		assertEquals(ServiceType.BANK, domain.externalAccount().serviceType());
-		assertEquals(serviceEmail, domain.externalAccount().email());
+		assertEquals(serviceEmail, domain.externalAccount().email().address());
 	}
 }

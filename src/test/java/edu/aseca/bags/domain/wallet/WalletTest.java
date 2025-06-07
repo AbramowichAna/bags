@@ -9,6 +9,7 @@ import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.exception.AlreadyLinkedExternalAccount;
+import edu.aseca.bags.testutil.Defaults;
 import org.junit.jupiter.api.Test;
 
 /*
@@ -97,7 +98,7 @@ class WalletTest {
 	@Test
 	public void canLinkExternalAccountSuccessfully_008() {
 		Wallet wallet = new Wallet(validEmail, validPassword);
-		ExternalAccount account = new ExternalAccount("Bank", ServiceType.BANK, "");
+		ExternalAccount account = new ExternalAccount("Bank", ServiceType.BANK, Defaults.getDefaultEmail());
 
 		assertDoesNotThrow(() -> wallet.linkExternalAccount(account), "Should link external account successfully");
 	}
@@ -105,8 +106,10 @@ class WalletTest {
 	@Test
 	public void canLinkWithMultipleAccountsFromSameExternalService_009() {
 		Wallet wallet = new Wallet(validEmail, validPassword);
-		ExternalAccount firstLinkedAccount = new ExternalAccount("Bank", ServiceType.BANK, "email1@gmail.com");
-		ExternalAccount secondLinkedAccount = new ExternalAccount("Bank", ServiceType.BANK, "email2@gmail.com");
+		ExternalAccount firstLinkedAccount = new ExternalAccount("Bank", ServiceType.BANK,
+				new Email("email1@gmail.com"));
+		ExternalAccount secondLinkedAccount = new ExternalAccount("Bank", ServiceType.BANK,
+				new Email("email2@gmail.com"));
 
 		assertDoesNotThrow(() -> wallet.linkExternalAccount(firstLinkedAccount),
 				"Should link first external account successfully");
@@ -118,7 +121,7 @@ class WalletTest {
 	@Test
 	public void cannotLinkWithSameAccountsFromSameExternalService_010() {
 		Wallet wallet = new Wallet(validEmail, validPassword);
-		ExternalAccount account = new ExternalAccount("Bank", ServiceType.BANK, "");
+		ExternalAccount account = new ExternalAccount("Bank", ServiceType.BANK, new Email("email1@gmail.com"));
 
 		assertDoesNotThrow(() -> wallet.linkExternalAccount(account),
 				"Should link first external account successfully");
@@ -136,14 +139,14 @@ class WalletTest {
 	@Test
 	public void isLinkedFailsWhenWalletIsNotLinkedToExternalAccount_012() {
 		Wallet wallet = new Wallet(validEmail, validPassword);
-		ExternalAccount account = new ExternalAccount("Bank", ServiceType.BANK, "");
+		ExternalAccount account = new ExternalAccount("Bank", ServiceType.BANK, new Email("email1@gmail.com"));
 		assertFalse(wallet.isLinkedTo(account), "Wallet should not be linked to the external account");
 	}
 
 	@Test
 	public void isLinkedReturnsTrueWhenWalletIsLinkedToExternalAccount_013() {
 		Wallet wallet = new Wallet(validEmail, validPassword);
-		ExternalAccount account = new ExternalAccount("Bank", ServiceType.BANK, "");
+		ExternalAccount account = new ExternalAccount("Bank", ServiceType.BANK, new Email("email1@gmail.com"));
 		wallet.linkExternalAccount(account);
 		assertTrue(wallet.isLinkedTo(account), "Wallet should be linked to the external account");
 	}

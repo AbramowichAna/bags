@@ -8,8 +8,8 @@ import edu.aseca.bags.api.dto.AuthRequest;
 import edu.aseca.bags.api.dto.AuthResponse;
 import edu.aseca.bags.api.dto.CreateWalletRequest;
 import edu.aseca.bags.integration.TestcontainersConfiguration;
-import edu.aseca.bags.persistence.SpringWalletJpaRepository;
-import edu.aseca.bags.persistence.WalletMapper;
+import edu.aseca.bags.persistence.repository.JpaWalletRepository;
+import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
 import edu.aseca.bags.testutil.TestWalletFactory;
 import java.util.Map;
 import java.util.Set;
@@ -32,19 +32,22 @@ public class LoginIntegrationTest {
 	private TestRestTemplate restTemplate;
 
 	@Autowired
-	private SpringWalletJpaRepository walletRepository;
+	private SpringWalletJpaRepository springWalletRepository;
+
+	@Autowired
+	private JpaWalletRepository walletRepository;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@BeforeEach
 	void setUp() {
-		walletRepository.deleteAll();
+		springWalletRepository.deleteAll();
 		registerTestUser("cryptobro@gmail.com", "cryptopassword");
 		registerTestUser("anothercryptobro@gmail.com", "visapassword");
 	}
 
 	private void registerTestUser(String email, String rawPassword) {
-		walletRepository.save(WalletMapper.toEntity(TestWalletFactory.createWallet(email, rawPassword)));
+		walletRepository.save(TestWalletFactory.createWallet(email, rawPassword));
 	}
 
 	@ParameterizedTest

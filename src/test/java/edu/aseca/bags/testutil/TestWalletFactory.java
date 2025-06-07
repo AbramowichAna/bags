@@ -1,6 +1,6 @@
 package edu.aseca.bags.testutil;
 
-import edu.aseca.bags.application.WalletRepository;
+import edu.aseca.bags.application.interfaces.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;

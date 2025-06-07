@@ -2,12 +2,8 @@ package edu.aseca.bags.config;
 
 import edu.aseca.bags.application.*;
 import edu.aseca.bags.application.CreateWalletUseCase;
-import edu.aseca.bags.application.PasswordEncoder;
-import edu.aseca.bags.application.WalletQuery;
-import edu.aseca.bags.application.WalletRepository;
-import edu.aseca.bags.application.clients.ExternalApiClient;
-import edu.aseca.bags.application.clients.ExternalApiClientImpl;
-import java.util.List;
+import edu.aseca.bags.application.interfaces.*;
+import edu.aseca.bags.application.queries.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,9 +16,9 @@ public class UseCaseConfig {
 	}
 
 	@Bean
-	public TransferUseCase transferUseCase(WalletRepository walletRepository, TransferRepository transferRepository,
-			TransferNumberGenerator transferNumberGenerator) {
-		return new TransferUseCase(walletRepository, transferRepository, transferNumberGenerator);
+	public TransferUseCase transferUseCase(WalletRepository walletRepository, MovementRepository movementRepository,
+			MovementIdGenerator movementIdGenerator) {
+		return new TransferUseCase(walletRepository, movementRepository, movementIdGenerator);
 	}
 
 	@Bean
@@ -31,23 +27,20 @@ public class UseCaseConfig {
 	}
 
 	@Bean
-	public TransferQuery transferQuery(WalletRepository walletRepository, TransferRepository transferRepository) {
-		return new TransferQuery(walletRepository, transferRepository);
+	public WalletMovementsQuery transferQuery(WalletRepository walletRepository, MovementQuery movementQuery) {
+		return new WalletMovementsQuery(walletRepository, movementQuery);
+	}
+
+	@Bean
+	public MovementQuery movementQuery(MovementRepository movementRepository) {
+		return new MovementQuery(movementRepository);
 	}
 
 	@Bean
 	public ExternalLoadUseCase externalLoadUseCase(WalletRepository walletRepository,
-			ExternalLoadRepository externalLoadRepository) {
-		return new ExternalLoadUseCase(walletRepository, externalLoadRepository);
+			MovementRepository movementRepository, ExternalAccountRepository externalAccountRepository,
+			MovementIdGenerator gen) {
+		return new ExternalLoadUseCase(walletRepository, movementRepository, externalAccountRepository, gen);
 	}
 
-	@Bean
-	public ExternalLoadQuery externalLoadQuery(ExternalLoadRepository externalLoadRepository) {
-		return new ExternalLoadQuery(externalLoadRepository);
-	}
-
-	@Bean
-	public TransactionQuery transactionQuery(TransferQuery transferQuery, ExternalLoadQuery externalLoadQuery) {
-		return new TransactionQuery(transferQuery, externalLoadQuery);
-	}
 }

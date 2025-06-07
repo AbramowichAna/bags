@@ -6,21 +6,30 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.Wallet;
+import edu.aseca.bags.persistence.entity.WalletEntity;
+import edu.aseca.bags.persistence.repository.JpaWalletRepository;
+import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
 import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-@DataJpaTest
+@SpringBootTest
+@ActiveProfiles("test")
+@Transactional
 public class JpaWalletRepositoryTest {
 
+	@Autowired
+	private JpaWalletRepository repository;
 	@Autowired
 	private SpringWalletJpaRepository springRepository;
 
 	@Test
 	void saveWalletPersistsDataCorrectly() {
-		JpaWalletRepository repository = new JpaWalletRepository(springRepository);
 		Email email = new Email("user@example.com");
 		Password password = new Password("hashedpass123");
 		Wallet wallet = new Wallet(email, password);
@@ -30,7 +39,7 @@ public class JpaWalletRepositoryTest {
 
 		Optional<WalletEntity> entity = springRepository.findByEmail("user@example.com");
 		assertTrue(entity.isPresent());
-		assertEquals("user@example.com", entity.get().getEmail());
+		assertEquals("user@example.com", entity.get().getEmail().address());
 		assertEquals("hashedpass123", entity.get().getPassword());
 		assertEquals(BigDecimal.valueOf(100.0), entity.get().getBalance());
 		assertNotNull(entity.get().getId());
@@ -39,7 +48,6 @@ public class JpaWalletRepositoryTest {
 
 	@Test
 	void existsByEmailReturnsFalseWhenWalletDoesNotExist() {
-		JpaWalletRepository repository = new JpaWalletRepository(springRepository);
 		boolean exists = repository.existsByEmail(new Email("nonexistent@example.com"));
 		assertFalse(exists);
 	}

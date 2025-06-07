@@ -1,6 +1,6 @@
 package edu.aseca.bags.application.util;
 
-import edu.aseca.bags.application.PasswordEncoder;
+import edu.aseca.bags.application.interfaces.PasswordEncoder;
 
 public class StubPasswordEncoder implements PasswordEncoder {
 

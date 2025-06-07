@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import edu.aseca.bags.api.dto.ExternalLoadRequest;
 import edu.aseca.bags.api.dto.ExternalLoadResponse;
-import edu.aseca.bags.application.util.InMemoryExternalLoadRepository;
-import edu.aseca.bags.application.util.InMemoryWalletRepository;
+import edu.aseca.bags.application.dto.MovementView;
+import edu.aseca.bags.application.interfaces.MovementIdGenerator;
+import edu.aseca.bags.application.util.*;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.participant.Wallet;
+import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -17,38 +19,45 @@ import org.junit.jupiter.api.Test;
 
 public class ExternalLoadUseCaseTest {
 
-	InMemoryWalletRepository walletRepository;
-	InMemoryExternalLoadRepository externalLoadRepository;
-	ExternalLoadUseCase externalLoadUseCase;
-	Wallet wallet;
+	private InMemoryWalletRepository walletRepository;
+	private InMemoryMovementRepository movementRepository;
+
+	private InMemoryExternalAccountRepository externalAccountRepository;
+	private ExternalLoadUseCase externalLoadUseCase;
+	private Wallet wallet;
+	private MovementIdGenerator movementIdGenerator;
+	private TransferNumber knownTransferNumber;
 
 	@BeforeEach
 	void setup() {
+		externalAccountRepository = new InMemoryExternalAccountRepository();
 		walletRepository = new InMemoryWalletRepository();
-		externalLoadRepository = new InMemoryExternalLoadRepository();
-		externalLoadUseCase = new ExternalLoadUseCase(walletRepository, externalLoadRepository);
+		movementRepository = new InMemoryMovementRepository();
+		knownTransferNumber = TransferNumber.random();
+		movementIdGenerator = new KnownMovementIdGenerator(knownTransferNumber);
+		externalLoadUseCase = new ExternalLoadUseCase(walletRepository, movementRepository, externalAccountRepository,
+				movementIdGenerator);
 		wallet = new Wallet(new Email("user@gmail.com"), new Password("hola12345"));
 		walletRepository.save(wallet);
 	}
 
-	private ExternalLoadRequest buildRequest(String email, BigDecimal amount, String txId) {
-		return new ExternalLoadRequest(email, amount, "BANK_TRANSFER", "BANK", "bank@bank.com", txId);
+	private ExternalLoadRequest buildRequest(String email, BigDecimal amount) {
+		return new ExternalLoadRequest(email, amount, "BANK_TRANSFER", "BANK", "bank@bank.com");
 	}
 
 	@Test
 	public void shouldIncreaseWalletBalanceSuccessfully_001() throws WalletNotFoundException {
-		String txId = UUID.randomUUID().toString();
-		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), BigDecimal.valueOf(100.0), txId);
-		ExternalLoadResponse response = externalLoadUseCase.loadFromExternal(request);
+		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), BigDecimal.valueOf(100.0));
+		MovementView response = externalLoadUseCase.loadFromExternal(request);
 		assertEquals(100.0, wallet.getBalance().amount());
-		assertEquals("SUCCESS", response.status());
-		assertEquals(100.0, response.amount());
+		assertEquals(knownTransferNumber.value().toString(), response.id());
+		assertEquals(wallet.getEmail().address(), response.toParticipant().email());
+		assertEquals("BANK_TRANSFER", response.fromParticipant().serviceName());
 	}
 
 	@Test
 	public void shouldFailToLoadWithNegativeAmount_002() {
-		String txId = UUID.randomUUID().toString();
-		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), BigDecimal.valueOf(-50.0), txId);
+		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), BigDecimal.valueOf(-50.0));
 		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
 			externalLoadUseCase.loadFromExternal(request);
 		});
@@ -57,8 +66,7 @@ public class ExternalLoadUseCaseTest {
 
 	@Test
 	public void shouldFailToLoadWithNonExistingWallet_003() {
-		String txId = UUID.randomUUID().toString();
-		ExternalLoadRequest request = buildRequest("hola@gmail.com", BigDecimal.valueOf(100.0), txId);
+		ExternalLoadRequest request = buildRequest("hola@gmail.com", BigDecimal.valueOf(100.0));
 		assertThrows(WalletNotFoundException.class, () -> {
 			externalLoadUseCase.loadFromExternal(request);
 		});
@@ -66,8 +74,7 @@ public class ExternalLoadUseCaseTest {
 
 	@Test
 	public void shouldFailToLoadWithNullAmount_004() {
-		String txId = UUID.randomUUID().toString();
-		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), null, txId);
+		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), null);
 		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
 			externalLoadUseCase.loadFromExternal(request);
 		});
