@@ -20,23 +20,12 @@ public class DebInUseCase {
 		this.externalApiClient = externalApiClient;
 	}
 
-	public void linkExternalService(Email walletEmail, String externalServiceName, ServiceType type, String email,
-			String password) throws UnsupportedExternalService, WalletNotFoundException {
+	public void requestDebIn(Email walletEmail, String externalServiceName, ServiceType type, String email,
+			double amount) throws UnsupportedExternalService, WalletNotFoundException {
 
-		Wallet wallet = walletRepository.findByEmail(walletEmail).orElseThrow(WalletNotFoundException::new);
-		Email externalEmail = new Email(email);
-
-		ExternalAccount externalAccount = new ExternalAccount(externalServiceName, type, externalEmail);
-		boolean verified = externalApiClient.verifyCredentials(externalAccount, password);
-		if (!verified) {
-			throw new IllegalArgumentException("External account credentials are invalid");
+		if (walletEmail == null || externalServiceName == null || type == null) {
+			throw new IllegalArgumentException("Parameters cannot be null");
 		}
-		wallet.linkExternalAccount(externalAccount);
-		walletRepository.save(wallet);
-	}
-
-	public void requestLoadFromExternalService(Email walletEmail, String externalServiceName, ServiceType type,
-			String email, double amount) throws UnsupportedExternalService, WalletNotFoundException {
 
 		Email externalEmail = new Email(email);
 
@@ -44,14 +33,14 @@ public class DebInUseCase {
 			throw new UnsupportedExternalService(externalServiceName);
 		}
 
-		Wallet wallet = walletRepository.findByEmail(walletEmail).orElseThrow(WalletNotFoundException::new);
-		ExternalAccount externalAccount = new ExternalAccount(externalServiceName, type, externalEmail);
-
-		if (!wallet.isLinkedTo(externalAccount)) {
-			throw new IllegalArgumentException("Wallet is not linked to external account");
+		if (amount <= 0) {
+			throw new IllegalArgumentException("Amount must be greater than zero");
 		}
 
-		if (!externalApiClient.requestLoad(externalAccount, new Money(amount))) {
+		walletRepository.findByEmail(walletEmail).orElseThrow(WalletNotFoundException::new);
+		ExternalAccount externalAccount = new ExternalAccount(externalServiceName, type, externalEmail);
+
+		if (!externalApiClient.requestLoad(externalAccount, new Money(amount), walletEmail)) {
 			throw new IllegalArgumentException("Failed to request load from external service");
 		}
 	}
