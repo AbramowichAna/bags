@@ -4,19 +4,20 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
+import edu.aseca.bags.exception.ExternalEntityNotFoundException;
 import edu.aseca.bags.exception.ExternalServiceException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 public class BankClient implements ExternalServiceClient {
 
-	private final RestTemplate restTemplate;
+	private final RestClient restClient;
 	private final String bankApiUrl;
 
-	public BankClient(RestTemplate restTemplate, String bankApiUrl) {
-		this.restTemplate = restTemplate;
+	public BankClient(RestClient restTemplate, String bankApiUrl) {
+		this.restClient = restTemplate;
 		this.bankApiUrl = bankApiUrl;
 	}
 
@@ -28,24 +29,18 @@ public class BankClient implements ExternalServiceClient {
 	@Override
 	public boolean requestLoad(ExternalAccount service, Money amount, Email walletEmail) {
 		String url = bankApiUrl + "/debin";
-		Map<String, Object> body = new HashMap<>();
-		body.put("walletId", walletEmail.address());
-		body.put("bankAccountId", service.email().address());
-		body.put("amount", amount.amount());
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+		Map<String, Object> body = Map.of("walletId", walletEmail.address(), "bankAccountId", service.email().address(),
+				"amount", amount.amount());
 
-		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-		try {
-			ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-			if (!response.getStatusCode().is2xxSuccessful()) {
-				throw new ExternalServiceException("Bank API returned status: " + response.getStatusCode());
-			}
-			return true;
-		} catch (Exception e) {
-			throw new ExternalServiceException("Error communicating with Bank API", e);
-		}
+		restClient.post().uri(url).contentType(MediaType.APPLICATION_JSON).body(body).retrieve()
+				.onStatus(HttpStatus.BAD_REQUEST::equals, (req, res) -> {
+					throw new IllegalArgumentException("Invalid request to Bank API: HTTP 400");
+				}).onStatus(HttpStatus.NOT_FOUND::equals, (req, res) -> {
+					throw new ExternalEntityNotFoundException();
+				}).onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+					throw new ExternalServiceException("Bank API internal error");
+				}).toBodilessEntity();
+		return true;
 	}
 }

@@ -167,6 +167,19 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
 	}
 
+	@ExceptionHandler(UnsupportedExternalService.class)
+	public ResponseEntity<String> handleExternalService(UnsupportedExternalService ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+	}
+
+	@ExceptionHandler(ExternalEntityNotFoundException.class)
+	public ResponseEntity<ApiErrorResponse> handleExternalEntityNotFound(ExternalEntityNotFoundException ex,
+			HttpServletRequest request) {
+		ApiErrorResponse error = new ApiErrorResponse("Not Found", HttpStatus.NOT_FOUND.value(),
+				"The requested external entity was not found", request.getRequestURI(), Map.of());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+	}
+
 	@ExceptionHandler(NoResourceFoundException.class)
 	public ResponseEntity<ApiErrorResponse> handleNotFound(NoResourceFoundException ex, HttpServletRequest request) {
 		ApiErrorResponse error = new ApiErrorResponse("Not Found", HttpStatus.NOT_FOUND.value(),

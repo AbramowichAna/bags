@@ -31,8 +31,8 @@ public class DebInController {
 
 		String fromEmailAddress = securityService.getMail();
 
-		debInUseCase.requestDebIn(new Email(fromEmailAddress), request.externalServiceName(),
-				ServiceType.valueOf(request.serviceType()), new Email(request.externalEmail()), request.amount());
+		debInUseCase.requestDebIn(new Email(fromEmailAddress), request.externalServiceName(), request.serviceType(),
+				new Email(request.externalEmail()), request.amount());
 
 		return ResponseEntity.ok().build();
 	}
