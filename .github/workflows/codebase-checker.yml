@@ -14,6 +14,10 @@ env:
   EXTERNAL_API_TOKEN: "secret"
   FAKE_PORT: "8081"
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,7 +36,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ secrets.GITHUB_ACTOR }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Docker Compose
         env:
