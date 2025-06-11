@@ -1,12 +1,12 @@
 package edu.aseca.bags.persistence.mapper.participantstrategy;
 
-import edu.aseca.bags.application.interfaces.ExternalAccountRepository;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.Participant;
 import edu.aseca.bags.persistence.entity.ExternalAccountEntity;
 import edu.aseca.bags.persistence.entity.ParticipantEntity;
 import edu.aseca.bags.persistence.mapper.ExternalAccountMapper;
 import edu.aseca.bags.persistence.repository.SpringExternalAccountJpaRepository;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,8 +29,10 @@ public class ExternalAccountResolver implements ParticipantEntityResolverStrateg
 	@Override
 	public ParticipantEntity resolve(Participant participant) {
 		ExternalAccount acc = (ExternalAccount) participant;
-		return repository.findByServiceNameAndServiceTypeAndEmail(acc.externalServiceName(),
-				acc.getServiceType().name(), acc.getEmail().address())
-				.orElse(repository.save(externalAccountMapper.toEntity(acc)));
+		Optional<ExternalAccountEntity> byServiceNameAndServiceTypeAndEmail = repository
+				.findByServiceNameAndServiceTypeAndEmail(acc.externalServiceName(), acc.getServiceType().name(),
+						acc.getEmail().address());
+		return byServiceNameAndServiceTypeAndEmail
+				.orElseGet(() -> repository.save(externalAccountMapper.toEntity(acc)));
 	}
 }

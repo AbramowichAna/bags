@@ -8,6 +8,12 @@ on:
   pull_request:
     branches: [ main, dev ]
 
+env:
+  FAKE_VERSION: "1.0.3"
+  API_URL: "http://host.docker.internal:60000"
+  EXTERNAL_API_TOKEN: "secret"
+  FAKE_PORT: "8081"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +26,21 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GITHUB_ACTOR }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Docker Compose
+        env:
+          FAKE_VERSION: ${{ env.FAKE_VERSION }}
+          API_URL: ${{ env.API_URL }}
+          EXTERNAL_API_TOKEN: ${{ env.EXTERNAL_API_TOKEN }}
+          FAKE_PORT: ${{ env.FAKE_PORT }}
+        run: docker-compose up fake -d
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Check with Gradle

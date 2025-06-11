@@ -20,8 +20,10 @@ services:
   fake:
     container_name: "fake-api"
     image: "ghcr.io/pablobaratta/fake-api:${FAKE_VERSION}"
+    volumes:
+      - ./testutil/balances.json:/app/balances.json
     environment:
-     EXTERNAL_API_URL: "http://app:8080"
+     EXTERNAL_API_URL: "${API_URL}"
      EXTERNAL_API_TOKEN: "${EXTERNAL_API_TOKEN}"
     ports:
       - "${FAKE_PORT}:3000"

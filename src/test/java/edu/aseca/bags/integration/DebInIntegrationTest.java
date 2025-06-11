@@ -6,8 +6,11 @@ import edu.aseca.bags.api.dto.DebInRequest;
 import edu.aseca.bags.persistence.entity.WalletEntity;
 import edu.aseca.bags.persistence.repository.SpringMovementJpaRepository;
 import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
+import edu.aseca.bags.testutil.Defaults;
 import edu.aseca.bags.testutil.JwtTestUtil;
 import java.math.BigDecimal;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +20,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("integration")
 @Import(TestcontainersConfiguration.class)
 public class DebInIntegrationTest {
 
-	@Autowired
-	private TestRestTemplate restTemplate;
+	private static TestRestTemplate restTemplate;
 
 	@Autowired
 	private SpringWalletJpaRepository walletJpaRepository;
@@ -33,6 +35,18 @@ public class DebInIntegrationTest {
 
 	@Autowired
 	private JwtTestUtil jwtTestUtil;
+
+	private static final int PORT = 60000;
+	private static final String HOST = "http://localhost";
+
+	private String getBaseUrl() {
+		return HOST + ":" + PORT;
+	}
+
+	@BeforeAll
+	static void init() {
+		restTemplate = new TestRestTemplate();
+	}
 
 	@BeforeEach
 	void setUp() {
@@ -52,6 +66,25 @@ public class DebInIntegrationTest {
 	}
 
 	@Test
+	void shouldSucceedInRequestingDebin() {
+		String email = Defaults.getDefaultEmail().address();
+		createWallet(email);
+
+		HttpHeaders headers = authHeadersFor(email);
+
+		DebInRequest request = new DebInRequest("Bank", "BANK", "alice@example.com", 1);
+
+		HttpEntity<DebInRequest> entity = new HttpEntity<>(request, headers);
+		ResponseEntity<String> response = restTemplate.postForEntity(getDebinUrl(), entity, String.class);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+	}
+
+	@NotNull
+	private String getDebinUrl() {
+		return getBaseUrl() + "/debin";
+	}
+
+	@Test
 	void shouldFailWithNonExistentWallet_001() {
 		String email = "nonexistent@gmail.com";
 
@@ -60,7 +93,7 @@ public class DebInIntegrationTest {
 		HttpHeaders headers = authHeadersFor(email);
 
 		HttpEntity<DebInRequest> entity = new HttpEntity<>(request, headers);
-		ResponseEntity<String> response = restTemplate.postForEntity("/debin", entity, String.class);
+		ResponseEntity<String> response = restTemplate.postForEntity(getDebinUrl(), entity, String.class);
 
 		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
 	}
@@ -75,7 +108,7 @@ public class DebInIntegrationTest {
 		HttpHeaders headers = authHeadersFor(email);
 
 		HttpEntity<DebInRequest> entity = new HttpEntity<>(request, headers);
-		ResponseEntity<String> response = restTemplate.postForEntity("/debin", entity, String.class);
+		ResponseEntity<String> response = restTemplate.postForEntity(getDebinUrl(), entity, String.class);
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 	}
@@ -90,7 +123,7 @@ public class DebInIntegrationTest {
 		HttpHeaders headers = authHeadersFor(email);
 
 		HttpEntity<DebInRequest> entity = new HttpEntity<>(request, headers);
-		ResponseEntity<String> response = restTemplate.postForEntity("/debin", entity, String.class);
+		ResponseEntity<String> response = restTemplate.postForEntity(getDebinUrl(), entity, String.class);
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 		assertNotNull(response.getBody());
