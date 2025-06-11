@@ -44,7 +44,7 @@ jobs:
           API_URL: ${{ env.API_URL }}
           EXTERNAL_API_TOKEN: ${{ env.EXTERNAL_API_TOKEN }}
           FAKE_PORT: ${{ env.FAKE_PORT }}
-        run: docker-compose up fake -d
+        run: docker compose up fake -d
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Check with Gradle
