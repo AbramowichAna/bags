@@ -162,6 +162,11 @@ public class GlobalExceptionHandler {
 				.body(new ApiErrorResponse("Unauthorized", 401, ex.getMessage(), request.getRequestURI(), null));
 	}
 
+	@ExceptionHandler(ExternalServiceException.class)
+	public ResponseEntity<String> handleExternalService(ExternalServiceException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
+	}
+
 	@ExceptionHandler(NoResourceFoundException.class)
 	public ResponseEntity<ApiErrorResponse> handleNotFound(NoResourceFoundException ex, HttpServletRequest request) {
 		ApiErrorResponse error = new ApiErrorResponse("Not Found", HttpStatus.NOT_FOUND.value(),

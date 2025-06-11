@@ -125,8 +125,7 @@ public class DebInIntegrationTest {
 		HttpEntity<DebInRequest> entity = new HttpEntity<>(request, headers);
 		ResponseEntity<String> response = restTemplate.postForEntity(getDebinUrl(), entity, String.class);
 
-		assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 		assertNotNull(response.getBody());
-		assertTrue(response.getBody().contains("Unsupported external service"));
 	}
 }

@@ -33,12 +33,12 @@ class DebInUseCaseTest {
 	void successfulLoadRequest_001() throws Exception {
 		String externalServiceName = "Bank";
 		ServiceType type = ServiceType.BANK;
-		String externalEmail = "external@bank.com";
+		Email externalEmail = new Email("external@bank.com");
 		double amount = 100.0;
 
 		debInUseCase.requestDebIn(wallet.getEmail(), externalServiceName, type, externalEmail, amount);
 
-		ExternalAccount expected = new ExternalAccount(externalServiceName, type, new Email(externalEmail));
+		ExternalAccount expected = new ExternalAccount(externalServiceName, type, externalEmail);
 		assertTrue(externalApiClient.receivedRequest(expected));
 	}
 
@@ -46,7 +46,7 @@ class DebInUseCaseTest {
 	void throwsWhenServiceNotSupported_002() {
 		String externalServiceName = "UnknownService";
 		ServiceType type = ServiceType.BANK;
-		String externalEmail = "external@bank.com";
+		Email externalEmail = new Email("external@bank.com");
 		double amount = 100.0;
 
 		assertThrows(UnsupportedExternalService.class,
@@ -57,7 +57,7 @@ class DebInUseCaseTest {
 	void throwsWhenWalletNotFound_003() {
 		String externalServiceName = "Bank";
 		ServiceType type = ServiceType.BANK;
-		String externalEmail = "external@bank.com";
+		Email externalEmail = new Email("external@bank.com");
 		double amount = 100.0;
 		Email nonExistentWallet = new Email("notfound@gmail.com");
 
@@ -69,7 +69,7 @@ class DebInUseCaseTest {
 	void throwsWhenAmountIsZero_004() {
 		String externalServiceName = "Bank";
 		ServiceType type = ServiceType.BANK;
-		String externalEmail = "external@bank.com";
+		Email externalEmail = new Email("external@bank.com");
 		double amount = 0.0;
 
 		assertThrows(IllegalArgumentException.class,
@@ -80,7 +80,7 @@ class DebInUseCaseTest {
 	void throwsWhenAmountIsNegative_005() {
 		String externalServiceName = "Bank";
 		ServiceType type = ServiceType.BANK;
-		String externalEmail = "external@bank.com";
+		Email externalEmail = new Email("external@bank.com");
 		double amount = -50.0;
 
 		assertThrows(IllegalArgumentException.class,
@@ -91,18 +91,17 @@ class DebInUseCaseTest {
 	void throwsWhenExternalEmailIsNull_006() {
 		String externalServiceName = "Bank";
 		ServiceType type = ServiceType.BANK;
-		String externalEmail = null;
 		double amount = 100.0;
 
-		assertThrows(IllegalArgumentException.class,
-				() -> debInUseCase.requestDebIn(wallet.getEmail(), externalServiceName, type, externalEmail, amount));
+		assertThrows(NullPointerException.class,
+				() -> debInUseCase.requestDebIn(wallet.getEmail(), externalServiceName, type, null, amount));
 	}
 
 	@Test
 	void throwsWhenWalletEmailIsNull_007() {
 		String externalServiceName = "Bank";
 		ServiceType type = ServiceType.BANK;
-		String externalEmail = "external@bank.com";
+		Email externalEmail = new Email("external@bank.com");
 		double amount = 100.0;
 
 		assertThrows(IllegalArgumentException.class,

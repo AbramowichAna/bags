@@ -4,6 +4,7 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
+import edu.aseca.bags.exception.ExternalServiceException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.*;
@@ -38,13 +39,13 @@ public class BankClient implements ExternalServiceClient {
 		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
 		try {
-			System.out.println("Sending POST to: " + url + " with body: " + body);
 			ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-			System.out.println("Response: " + response.getStatusCode() + " - " + response.getBody());
-			return response.getStatusCode().is2xxSuccessful();
+			if (!response.getStatusCode().is2xxSuccessful()) {
+				throw new ExternalServiceException("Bank API returned status: " + response.getStatusCode());
+			}
+			return true;
 		} catch (Exception e) {
-			System.err.println("BankClient request failed: " + e.getMessage());
-			return false;
+			throw new ExternalServiceException("Error communicating with Bank API", e);
 		}
 	}
 }
