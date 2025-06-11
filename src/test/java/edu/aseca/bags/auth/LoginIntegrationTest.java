@@ -4,9 +4,9 @@ import static edu.aseca.bags.exception.GlobalExceptionHandler.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.aseca.bags.api.dto.AuthRequest;
-import edu.aseca.bags.api.dto.AuthResponse;
-import edu.aseca.bags.api.dto.CreateWalletRequest;
+import edu.aseca.bags.application.dto.AuthRequest;
+import edu.aseca.bags.application.dto.AuthResponse;
+import edu.aseca.bags.application.dto.CreateWalletRequest;
 import edu.aseca.bags.integration.TestcontainersConfiguration;
 import edu.aseca.bags.persistence.repository.JpaWalletRepository;
 import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;

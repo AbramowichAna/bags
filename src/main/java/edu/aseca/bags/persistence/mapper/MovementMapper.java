@@ -2,8 +2,8 @@ package edu.aseca.bags.persistence.mapper;
 
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.transaction.Movement;
+import edu.aseca.bags.domain.transaction.MovementId;
 import edu.aseca.bags.domain.transaction.MovementType;
-import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.persistence.entity.MovementEntity;
 import edu.aseca.bags.persistence.entity.ParticipantEntity;
 import java.math.BigDecimal;
@@ -29,7 +29,7 @@ public class MovementMapper {
 			return null;
 		}
 
-		return new Movement(TransferNumber.of(UUID.fromString(entity.getTransferNumber())),
+		return new Movement(MovementId.of(UUID.fromString(entity.getTransferNumber())),
 				participantMapper.toDomain(entity.getFrom()), participantMapper.toDomain(entity.getTo()),
 				entity.getTimestamp(), new Money(entity.getAmount().doubleValue()),
 				MovementType.valueOf(entity.getType()));

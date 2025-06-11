@@ -4,7 +4,7 @@ import edu.aseca.bags.application.dto.Pagination;
 import edu.aseca.bags.application.interfaces.MovementRepository;
 import edu.aseca.bags.domain.participant.Participant;
 import edu.aseca.bags.domain.transaction.Movement;
-import edu.aseca.bags.domain.transaction.TransferNumber;
+import edu.aseca.bags.domain.transaction.MovementId;
 import edu.aseca.bags.persistence.entity.ParticipantEntity;
 import edu.aseca.bags.persistence.mapper.MovementMapper;
 import edu.aseca.bags.persistence.mapper.participantstrategy.ParticipantResolver;
@@ -43,7 +43,7 @@ public class JpaMovementRepository implements MovementRepository {
 	}
 
 	@Override
-	public Optional<Movement> findById(TransferNumber id) {
+	public Optional<Movement> findById(MovementId id) {
 		return Optional.empty();
 	}
 }

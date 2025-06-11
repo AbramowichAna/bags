@@ -13,8 +13,8 @@ import lombok.Getter;
 public abstract class ParticipantEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	protected UUID id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	protected Long id;
 
 	abstract String getServiceName();
 

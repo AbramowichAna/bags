@@ -57,7 +57,7 @@ public class TransferController {
 	}
 
 	@GetMapping
-	public ResponseEntity<Page<MovementView>> getTransfers(@RequestParam(defaultValue = "0") @Min(0) int page,
+	public ResponseEntity<Page<MovementView>> getMovements(@RequestParam(defaultValue = "0") @Min(0) int page,
 			@RequestParam(defaultValue = "10") @Positive int size) throws WalletNotFoundException {
 		String email = securityService.getMail();
 		var responses = movementsQuery.getMovements(new Email(email), new Pagination(page, size));

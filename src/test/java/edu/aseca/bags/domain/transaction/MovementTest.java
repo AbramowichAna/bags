@@ -17,9 +17,9 @@ class MovementTest {
 		Participant to = TestWalletFactory.createWallet("to@gmail.com", somePassword());
 		Money amount = getAmount();
 		Instant timestamp = getNow();
-		TransferNumber transferNumber = TransferNumber.random();
+		MovementId movementId = MovementId.random();
 
-		Movement movement = new Movement(transferNumber, from, to, timestamp, amount, MovementType.TRANSFER);
+		Movement movement = new Movement(movementId, from, to, timestamp, amount, MovementType.TRANSFER);
 
 		assertNotNull(movement.movementId());
 		assertEquals(from, movement.from());
@@ -34,18 +34,18 @@ class MovementTest {
 		Participant to = TestWalletFactory.createWallet("to@gmail.com", somePassword());
 		Money amount = getAmount();
 		Instant timestamp = getNow();
-		TransferNumber transferNumber = TransferNumber.random();
+		MovementId movementId = MovementId.random();
 
 		assertThrows(NullPointerException.class,
 				() -> new Movement(null, from, to, timestamp, amount, MovementType.TRANSFER));
 		assertThrows(NullPointerException.class,
-				() -> new Movement(transferNumber, null, to, timestamp, amount, MovementType.TRANSFER));
+				() -> new Movement(movementId, null, to, timestamp, amount, MovementType.TRANSFER));
 		assertThrows(NullPointerException.class,
-				() -> new Movement(transferNumber, from, null, timestamp, amount, MovementType.TRANSFER));
+				() -> new Movement(movementId, from, null, timestamp, amount, MovementType.TRANSFER));
 		assertThrows(NullPointerException.class,
-				() -> new Movement(transferNumber, from, to, null, amount, MovementType.TRANSFER));
+				() -> new Movement(movementId, from, to, null, amount, MovementType.TRANSFER));
 		assertThrows(NullPointerException.class,
-				() -> new Movement(transferNumber, from, to, timestamp, null, MovementType.TRANSFER));
+				() -> new Movement(movementId, from, to, timestamp, null, MovementType.TRANSFER));
 	}
 
 	@Test
@@ -54,10 +54,10 @@ class MovementTest {
 		Participant to = TestWalletFactory.createWallet("to@gmail.com", somePassword());
 		Money amount = getAmount();
 		Instant timestamp = getNow();
-		TransferNumber transferNumber = TransferNumber.random();
+		MovementId movementId = MovementId.random();
 
-		Movement movement1 = new Movement(transferNumber, from, to, timestamp, amount, MovementType.TRANSFER);
-		Movement movement2 = new Movement(transferNumber, from, to, timestamp, amount, MovementType.TRANSFER);
+		Movement movement1 = new Movement(movementId, from, to, timestamp, amount, MovementType.TRANSFER);
+		Movement movement2 = new Movement(movementId, from, to, timestamp, amount, MovementType.TRANSFER);
 
 		assertEquals(movement1, movement2);
 		assertEquals(movement1.hashCode(), movement2.hashCode());

@@ -4,7 +4,7 @@ import static edu.aseca.bags.exception.GlobalExceptionHandler.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import edu.aseca.bags.api.dto.CreateWalletRequest;
+import edu.aseca.bags.application.dto.CreateWalletRequest;
 import edu.aseca.bags.persistence.entity.WalletEntity;
 import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
 import java.math.BigDecimal;

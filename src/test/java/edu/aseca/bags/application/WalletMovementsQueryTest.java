@@ -12,8 +12,8 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.Participant;
 import edu.aseca.bags.domain.transaction.Movement;
+import edu.aseca.bags.domain.transaction.MovementId;
 import edu.aseca.bags.domain.transaction.MovementType;
-import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.testutil.TestWalletFactory;
 import java.time.Instant;
@@ -35,7 +35,7 @@ public class WalletMovementsQueryTest {
 		Participant from = TestWalletFactory.createAndSave(walletRepository, fromEmail, "password", 100);
 		Participant to = TestWalletFactory.createAndSave(walletRepository, "to@gmail.com", "password", 100);
 
-		Movement movement = new Movement(TransferNumber.random(), from, to, Instant.now(), Money.of(50),
+		Movement movement = new Movement(MovementId.random(), from, to, Instant.now(), Money.of(50),
 				MovementType.TRANSFER);
 
 		inMemoryMovementRepository.save(movement);

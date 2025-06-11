@@ -16,13 +16,11 @@ public class Wallet implements Participant {
 	private final Password password;
 	@Getter
 	private Money balance;
-	private final List<ExternalAccount> externalAccounts;
 
 	public Wallet(Email email, Password password) {
 		this.email = email;
 		this.password = password;
 		this.balance = new Money(0);
-		this.externalAccounts = new ArrayList<>();
 	}
 
 	public void addBalance(Money balance) {
@@ -39,24 +37,6 @@ public class Wallet implements Participant {
 
 	public boolean hasSufficientBalance(Money amount) {
 		return this.balance.amount() >= amount.amount();
-	}
-
-	public void linkExternalAccount(ExternalAccount account) {
-		if (account == null) {
-			throw new IllegalArgumentException("External account must not be null");
-		}
-		if (isLinkedTo(account)) {
-			throw new AlreadyLinkedExternalAccount();
-		}
-		externalAccounts.add(account);
-	}
-
-	public boolean isLinkedTo(ExternalAccount account) {
-		return externalAccounts.stream().anyMatch(s -> s.equals(account));
-	}
-
-	public List<ExternalAccount> getExternalAccounts() {
-		return List.copyOf(this.externalAccounts);
 	}
 
 	@Override

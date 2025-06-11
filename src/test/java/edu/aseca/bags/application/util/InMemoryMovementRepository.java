@@ -5,7 +5,7 @@ import edu.aseca.bags.application.interfaces.MovementRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.participant.Participant;
 import edu.aseca.bags.domain.transaction.Movement;
-import edu.aseca.bags.domain.transaction.TransferNumber;
+import edu.aseca.bags.domain.transaction.MovementId;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
@@ -13,7 +13,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 public class InMemoryMovementRepository implements MovementRepository {
-	private final Map<TransferNumber, Movement> data = new HashMap<>();
+	private final Map<MovementId, Movement> data = new HashMap<>();
 
 	@Override
 	public void save(Movement movement) {
@@ -40,12 +40,12 @@ public class InMemoryMovementRepository implements MovementRepository {
 	}
 
 	@Override
-	public Optional<Movement> findById(TransferNumber id) {
+	public Optional<Movement> findById(MovementId id) {
 		return Optional.ofNullable(data.get(id));
 	}
 
-	public Optional<Movement> findByTransferNumber(TransferNumber transferNumber) {
-		return Optional.ofNullable(data.get(transferNumber));
+	public Optional<Movement> findByTransferNumber(MovementId movementId) {
+		return Optional.ofNullable(data.get(movementId));
 	}
 
 	public int count() {

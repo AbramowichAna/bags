@@ -1,8 +1,7 @@
 package edu.aseca.bags.api;
 
-import edu.aseca.bags.api.dto.ExternalLoadRequest;
-import edu.aseca.bags.api.dto.ExternalLoadResponse;
 import edu.aseca.bags.application.ExternalLoadUseCase;
+import edu.aseca.bags.application.dto.ExternalLoadRequest;
 import edu.aseca.bags.application.dto.MovementView;
 import edu.aseca.bags.exception.InvalidApiTokenException;
 import edu.aseca.bags.exception.WalletNotFoundException;
