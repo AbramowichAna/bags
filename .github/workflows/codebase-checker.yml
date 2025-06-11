@@ -47,5 +47,13 @@ jobs:
         run: docker compose up fake -d
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
+      - name: Wait for fake API to be ready
+        run: |
+         for i in {1..30}; do
+           nc -z localhost 8081 && echo "Fake API is up" && exit 0
+           echo "Waiting for Fake API..."
+           sleep 1
+         done
+         echo "Fake API not responding on time" && exit 1
       - name: Check with Gradle
         run: ./gradlew check
