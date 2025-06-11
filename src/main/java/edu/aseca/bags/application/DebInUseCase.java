@@ -7,6 +7,7 @@ import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.domain.participant.Wallet;
+import edu.aseca.bags.exception.ExternalServiceException;
 import edu.aseca.bags.exception.UnsupportedExternalService;
 import edu.aseca.bags.exception.WalletNotFoundException;
 
@@ -20,14 +21,12 @@ public class DebInUseCase {
 		this.externalApiClient = externalApiClient;
 	}
 
-	public void requestDebIn(Email walletEmail, String externalServiceName, ServiceType type, String email,
+	public void requestDebIn(Email walletEmail, String externalServiceName, ServiceType type, Email externalEmail,
 			double amount) throws UnsupportedExternalService, WalletNotFoundException {
 
 		if (walletEmail == null || externalServiceName == null || type == null) {
 			throw new IllegalArgumentException("Parameters cannot be null");
 		}
-
-		Email externalEmail = new Email(email);
 
 		if (!externalApiClient.isSupportedService(externalServiceName, type)) {
 			throw new UnsupportedExternalService(externalServiceName);
@@ -41,7 +40,7 @@ public class DebInUseCase {
 		ExternalAccount externalAccount = new ExternalAccount(externalServiceName, type, externalEmail);
 
 		if (!externalApiClient.requestLoad(externalAccount, new Money(amount), walletEmail)) {
-			throw new IllegalArgumentException("Failed to request load from external service");
+			throw new ExternalServiceException("Failed to request load from external service");
 		}
 	}
 

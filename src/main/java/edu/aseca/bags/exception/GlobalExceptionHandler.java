@@ -133,6 +133,11 @@ public class GlobalExceptionHandler {
 				.body(new ApiErrorResponse("Unauthorized", 401, ex.getMessage(), request.getRequestURI(), null));
 	}
 
+	@ExceptionHandler(ExternalServiceException.class)
+	public ResponseEntity<String> handleExternalService(ExternalServiceException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
+	}
+
 	public record ApiErrorResponse(String title, int status, String detail, String instance,
 			Map<String, String> errors) {
 	}

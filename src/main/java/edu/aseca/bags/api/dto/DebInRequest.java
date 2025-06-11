@@ -1,4 +1,7 @@
 package edu.aseca.bags.api.dto;
 
-public record DebInRequest(String externalServiceName, String serviceType, String externalEmail, double amount) {
+import jakarta.validation.constraints.*;
+
+public record DebInRequest(@NotBlank String externalServiceName, @NotBlank String serviceType,
+		@Email String externalEmail, @Positive double amount) {
 }
