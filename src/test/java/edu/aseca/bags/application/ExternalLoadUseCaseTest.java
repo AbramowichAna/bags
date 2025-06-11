@@ -78,4 +78,29 @@ public class ExternalLoadUseCaseTest {
 		});
 		assertEquals("Amount must not be null", ex.getMessage());
 	}
+
+	@Test
+	void shouldFailWhenMovementIdAlreadyExistsDuplicateTransactionId_005() {
+		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), BigDecimal.valueOf(100.0));
+		movementRepository.save(new edu.aseca.bags.domain.transaction.Movement(knownMovementId,
+				new edu.aseca.bags.domain.participant.ExternalAccount("BANK_TRANSFER",
+						edu.aseca.bags.domain.participant.ServiceType.BANK, new Email("bank@bank.com")),
+				wallet, java.time.Instant.now(), new edu.aseca.bags.domain.money.Money(100.0),
+				edu.aseca.bags.domain.transaction.MovementType.EXTERNAL_IN));
+
+		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+			externalLoadUseCase.loadFromExternal(request);
+		});
+		assertEquals("External reference already used", ex.getMessage());
+	}
+
+	@Test
+	void shouldFailWithUnknownExternalServiceInvalidServiceData_006() {
+		ExternalLoadRequest request = new ExternalLoadRequest(wallet.getEmail().address(), BigDecimal.valueOf(100.0),
+				"UNKNOWN_SERVICE", "UNKNOWN_TYPE", "unknown@service.com");
+		assertThrows(IllegalArgumentException.class, () -> {
+			externalLoadUseCase.loadFromExternal(request);
+		});
+	}
+
 }

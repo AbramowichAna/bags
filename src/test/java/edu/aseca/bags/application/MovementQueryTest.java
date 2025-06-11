@@ -81,4 +81,73 @@ public class MovementQueryTest {
 
 	}
 
+	@Test
+	void shouldPaginateMovementsCorrectly_004() {
+		String email = "user@gmail.com";
+		Participant user = TestWalletFactory.createAndSave(walletRepository, email, "password", 100);
+
+		for (int i = 0; i < 15; i++) {
+			Movement m = new Movement(MovementId.random(), user,
+					TestWalletFactory.createAndSave(walletRepository, "to" + i + "@gmail.com", "pw", 100),
+					Instant.now().minusSeconds(i), Money.of(10), MovementType.TRANSFER);
+			inMemoryMovementRepository.save(m);
+		}
+
+		var firstPage = movementQuery.getMovements(user, new Pagination(0, 10));
+		var secondPage = movementQuery.getMovements(user, new Pagination(1, 10));
+
+		assertEquals(10, firstPage.getContent().size(), "First page should have 10 movements");
+		assertEquals(5, secondPage.getContent().size(), "Second page should have 5 movements");
+		assertEquals(2, firstPage.getTotalPages(), "Should be 2 pages");
+	}
+
+	@Test
+	void shouldReturnEmptyPageWhenPageIndexTooHigh_005() {
+		String email = "user@gmail.com";
+		Participant user = TestWalletFactory.createAndSave(walletRepository, email, "password", 100);
+
+		for (int i = 0; i < 3; i++) {
+			Movement m = new Movement(MovementId.random(), user,
+					TestWalletFactory.createAndSave(walletRepository, "to" + i + "@gmail.com", "pw", 100),
+					Instant.now(), Money.of(10), MovementType.TRANSFER);
+			inMemoryMovementRepository.save(m);
+		}
+
+		var page = movementQuery.getMovements(user, new Pagination(2, 2));
+		assertEquals(0, page.getContent().size(), "No movements should be returned for out-of-range page");
+	}
+
+	@Test
+	void shouldReturnOnlyMovementsForGivenParticipant_006() {
+		Participant user1 = TestWalletFactory.createAndSave(walletRepository, "user1@gmail.com", "pw", 100);
+		Participant user2 = TestWalletFactory.createAndSave(walletRepository, "user2@gmail.com", "pw", 100);
+
+		inMemoryMovementRepository.save(
+				new Movement(MovementId.random(), user1, user2, Instant.now(), Money.of(10), MovementType.TRANSFER));
+		inMemoryMovementRepository.save(
+				new Movement(MovementId.random(), user2, user1, Instant.now(), Money.of(20), MovementType.TRANSFER));
+
+		var page1 = movementQuery.getMovements(user1, new Pagination(0, 10));
+		var page2 = movementQuery.getMovements(user2, new Pagination(0, 10));
+
+		assertEquals(2, page1.getTotalElements(), "user1 should see both movements");
+		assertEquals(2, page2.getTotalElements(), "user2 should see both movements");
+	}
+
+	@Test
+	void shouldSetMovementTypeCorrectly_007() {
+		Participant from = TestWalletFactory.createAndSave(walletRepository, "from@gmail.com", "pw", 100);
+		Participant to = TestWalletFactory.createAndSave(walletRepository, "to@gmail.com", "pw", 100);
+
+		Movement movement = new Movement(MovementId.random(), from, to, Instant.now(), Money.of(10),
+				MovementType.TRANSFER);
+		inMemoryMovementRepository.save(movement);
+
+		var fromPage = movementQuery.getMovements(from, new Pagination(0, 10));
+		var toPage = movementQuery.getMovements(to, new Pagination(0, 10));
+
+		assertEquals("OUT", fromPage.getContent().getFirst().type(), "Should be OUT for sender");
+		assertEquals("IN", toPage.getContent().getFirst().type(), "Should be IN for receiver");
+	}
+
 }

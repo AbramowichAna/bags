@@ -12,10 +12,15 @@ public class FakeExternalApiClient implements ExternalApiClient {
 
 	private final Set<String> knownServices;
 	private Set<ExternalAccount> requests;
+	private boolean shouldFail = false;
 
 	public FakeExternalApiClient() {
 		knownServices = Set.of("Bank", "PayPal", "CryptoExchange");
 		requests = new HashSet<>();
+	}
+
+	public void setShouldFail(boolean shouldFail) {
+		this.shouldFail = shouldFail;
 	}
 
 	@Override
@@ -23,6 +28,9 @@ public class FakeExternalApiClient implements ExternalApiClient {
 			throws UnsupportedExternalService {
 		if (!knownServices.contains(service.externalServiceName())) {
 			throw new UnsupportedExternalService(service.externalServiceName());
+		}
+		if (shouldFail) {
+			return false;
 		}
 		requests.add(service);
 		return requests.contains(service);

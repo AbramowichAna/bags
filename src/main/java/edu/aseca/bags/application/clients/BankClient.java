@@ -6,7 +6,6 @@ import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.exception.ExternalEntityNotFoundException;
 import edu.aseca.bags.exception.ExternalServiceException;
-import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClient;
