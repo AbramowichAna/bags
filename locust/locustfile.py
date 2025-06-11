@@ -31,7 +31,7 @@ class WalletUser(HttpUser):
                 else:
                     response.success()  # No contarlo como failure
 
-    @task(5)
+    @task(7)
     def get_wallet_info(self):
         if self.token:
             with self.client.get("/wallet", headers=self.headers, catch_response=True) as response:
@@ -40,7 +40,7 @@ class WalletUser(HttpUser):
                 else:
                     response.success()
 
-    @task(5)
+    @task(7)
     def get_transfer_history(self):
         if self.token:
             with self.client.get("/transfer?page=0&size=10", headers=self.headers, catch_response=True) as response:
@@ -49,7 +49,7 @@ class WalletUser(HttpUser):
                 else:
                     response.success()
 
-    @task(1)
+    @task(2)
     def transfer_funds(self):
         if self.token:
             receiver = random.choice([u for u in registered_users if u["email"] != self.email])
@@ -60,5 +60,20 @@ class WalletUser(HttpUser):
             }, headers=self.headers, catch_response=True) as response:
                 if response.status_code >= 500:
                     response.failure(f"Server error in transfer_funds: {response.status_code}")
+                else:
+                    response.success()
+
+    @task(1)
+    def create_debin(self):
+        if self.token:
+            amount = random.uniform(1.0, 2.0)
+            with self.client.post("/debin", json={
+                "externalServiceName": "bank",
+                "serviceType": "bank",
+                "externalEmail": self.email,
+                "amount": amount
+            }, headers=self.headers, catch_response=True) as response:
+                if response.status_code >= 500:
+                    response.failure(f"Server error in create_debin: {response.status_code}")
                 else:
                     response.success()
