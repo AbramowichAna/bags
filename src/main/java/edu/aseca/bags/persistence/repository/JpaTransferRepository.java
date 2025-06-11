@@ -44,20 +44,16 @@ public class JpaTransferRepository implements TransferRepository {
 	}
 
 	@Override
-	public List<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, Pagination page) {
+	public Page<Transfer> findByFromWalletOrToWallet(Wallet fromWallet, Wallet toWallet, Pagination page) {
 		WalletEntity fromWalletEntity = walletJpaRepository.findByEmail(fromWallet.getEmail().address())
 				.orElseThrow(() -> new IllegalStateException("From wallet not found"));
 		WalletEntity toWalletEntity = walletJpaRepository.findByEmail(toWallet.getEmail().address())
 				.orElseThrow(() -> new IllegalStateException("To wallet not found"));
 
-		if (page == null) {
-			List<TransferEntity> entities = jpaRepository.findByFromWalletOrToWallet(fromWalletEntity, toWalletEntity);
-			return entities.stream().map(transferMapper::toDomain).toList();
-		}
-
 		Page<TransferEntity> pageResult = jpaRepository.findByFromWalletOrToWallet(fromWalletEntity, toWalletEntity,
 				org.springframework.data.domain.PageRequest.of(page.page(), page.size()));
-		return pageResult.stream().map(transferMapper::toDomain).toList();
+
+		return pageResult.map(transferMapper::toDomain);
 	}
 
 }
