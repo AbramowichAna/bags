@@ -1,18 +1,18 @@
 package edu.aseca.bags.application.util;
 
 import edu.aseca.bags.application.interfaces.MovementIdGenerator;
-import edu.aseca.bags.domain.transaction.TransferNumber;
+import edu.aseca.bags.domain.transaction.MovementId;
 
 public class KnownMovementIdGenerator implements MovementIdGenerator {
 
-	private final TransferNumber transferNumber;
+	private final MovementId movementId;
 
-	public KnownMovementIdGenerator(TransferNumber transferNumber) {
-		this.transferNumber = transferNumber;
+	public KnownMovementIdGenerator(MovementId movementId) {
+		this.movementId = movementId;
 	}
 
 	@Override
-	public TransferNumber generate() {
-		return transferNumber;
+	public MovementId generate() {
+		return movementId;
 	}
 }

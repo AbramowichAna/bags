@@ -3,20 +3,20 @@ package edu.aseca.bags.domain.transaction;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class TransferNumber {
+public final class MovementId {
 
 	private final UUID value;
 
-	private TransferNumber(UUID value) {
+	private MovementId(UUID value) {
 		this.value = Objects.requireNonNull(value, "Transfer number UUID cannot be null");
 	}
 
-	public static TransferNumber random() {
-		return new TransferNumber(UUID.randomUUID());
+	public static MovementId random() {
+		return new MovementId(UUID.randomUUID());
 	}
 
-	public static TransferNumber of(UUID uuid) {
-		return new TransferNumber(uuid);
+	public static MovementId of(UUID uuid) {
+		return new MovementId(uuid);
 	}
 
 	public UUID value() {
@@ -28,7 +28,7 @@ public final class TransferNumber {
 		if (this == o) {
 			return true;
 		}
-		if (!(o instanceof TransferNumber that)) {
+		if (!(o instanceof MovementId that)) {
 			return false;
 		}
 		return value.equals(that.value);

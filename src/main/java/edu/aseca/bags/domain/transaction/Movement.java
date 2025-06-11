@@ -5,7 +5,7 @@ import edu.aseca.bags.domain.participant.Participant;
 import java.time.Instant;
 import java.util.Objects;
 
-public record Movement(TransferNumber movementId, Participant from, Participant to, Instant timestamp, Money amount,
+public record Movement(MovementId movementId, Participant from, Participant to, Instant timestamp, Money amount,
 		MovementType type) {
 	public Movement {
 		Objects.requireNonNull(movementId, "Movement ID must be defined");

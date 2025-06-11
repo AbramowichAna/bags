@@ -22,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration")
 @Import(TestcontainersConfiguration.class)
-public class TransferIntegrationTest {
+public class MovementIntegrationTest {
 
 	@Autowired
 	private TestRestTemplate restTemplate;

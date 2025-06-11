@@ -1,4 +1,4 @@
-package edu.aseca.bags.api.dto;
+package edu.aseca.bags.application.dto;
 
 import edu.aseca.bags.domain.participant.ServiceType;
 import jakarta.validation.constraints.*;

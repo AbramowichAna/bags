@@ -1,6 +1,6 @@
 package edu.aseca.bags.application;
 
-import edu.aseca.bags.api.dto.ExternalLoadRequest;
+import edu.aseca.bags.application.dto.ExternalLoadRequest;
 import edu.aseca.bags.application.dto.MovementView;
 import edu.aseca.bags.application.interfaces.*;
 import edu.aseca.bags.domain.email.Email;
@@ -9,8 +9,8 @@ import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.Movement;
+import edu.aseca.bags.domain.transaction.MovementId;
 import edu.aseca.bags.domain.transaction.MovementType;
-import edu.aseca.bags.domain.transaction.TransferNumber;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -37,7 +37,7 @@ public class ExternalLoadUseCase {
 		String externalServiceName = request.externalServiceName();
 		String externalServiceType = request.externalServiceType();
 		String externalServiceEmail = request.externalServiceEmail();
-		TransferNumber transactionUuid = generator.generate();
+		MovementId transactionUuid = generator.generate();
 		Instant timestamp = Instant.now();
 		Wallet wallet = walletRepository.findByEmail(walletEmail).orElseThrow(WalletNotFoundException::new);
 
@@ -57,7 +57,7 @@ public class ExternalLoadUseCase {
 		return MovementView.from(movement, walletEmail);
 	}
 
-	private void validateExternalLoad(BigDecimal amount, TransferNumber id) {
+	private void validateExternalLoad(BigDecimal amount, MovementId id) {
 		if (amount == null) {
 			throw new IllegalArgumentException("Amount must not be null");
 		}

@@ -2,7 +2,7 @@ package edu.aseca.bags.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.aseca.bags.api.dto.ExternalLoadRequest;
+import edu.aseca.bags.application.dto.ExternalLoadRequest;
 import edu.aseca.bags.application.dto.MovementView;
 import edu.aseca.bags.persistence.entity.WalletEntity;
 import edu.aseca.bags.persistence.repository.SpringMovementJpaRepository;

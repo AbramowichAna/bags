@@ -12,7 +12,7 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.domain.transaction.Movement;
-import edu.aseca.bags.domain.transaction.TransferNumber;
+import edu.aseca.bags.domain.transaction.MovementId;
 import edu.aseca.bags.exception.InsufficientFundsException;
 import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
@@ -30,7 +30,7 @@ public class TransferUseCaseTest {
 
 	private final UUID knownUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-	private final TransferNumber knownTransferNumber = TransferNumber.of(knownUuid);
+	private final MovementId knownMovementId = MovementId.of(knownUuid);
 	private static final String FROM_EMAIL = "from@example.com";
 	private static final String TO_EMAIL = "to@example.com";
 
@@ -38,7 +38,7 @@ public class TransferUseCaseTest {
 	void setUp() {
 		walletRepository = new InMemoryWalletRepository();
 		movementRepository = new InMemoryMovementRepository();
-		var gen = new KnownMovementIdGenerator(knownTransferNumber);
+		var gen = new KnownMovementIdGenerator(knownMovementId);
 		transferUseCase = new TransferUseCase(walletRepository, movementRepository, gen);
 	}
 
@@ -137,7 +137,7 @@ public class TransferUseCaseTest {
 	}
 
 	private void assertTransferStored(Movement movement) {
-		Movement foundTransfer = assertDoesNotThrow(() -> movementRepository.findById(knownTransferNumber)
+		Movement foundTransfer = assertDoesNotThrow(() -> movementRepository.findById(knownMovementId)
 				.orElseThrow(() -> new RuntimeException("Transfer not found in repository")));
 
 		assertEquals(movement, foundTransfer);

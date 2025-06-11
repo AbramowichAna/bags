@@ -2,18 +2,16 @@ package edu.aseca.bags.application;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.aseca.bags.api.dto.ExternalLoadRequest;
-import edu.aseca.bags.api.dto.ExternalLoadResponse;
+import edu.aseca.bags.application.dto.ExternalLoadRequest;
 import edu.aseca.bags.application.dto.MovementView;
 import edu.aseca.bags.application.interfaces.MovementIdGenerator;
 import edu.aseca.bags.application.util.*;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.participant.Wallet;
-import edu.aseca.bags.domain.transaction.TransferNumber;
+import edu.aseca.bags.domain.transaction.MovementId;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import java.math.BigDecimal;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,15 +24,15 @@ public class ExternalLoadUseCaseTest {
 	private ExternalLoadUseCase externalLoadUseCase;
 	private Wallet wallet;
 	private MovementIdGenerator movementIdGenerator;
-	private TransferNumber knownTransferNumber;
+	private MovementId knownMovementId;
 
 	@BeforeEach
 	void setup() {
 		externalAccountRepository = new InMemoryExternalAccountRepository();
 		walletRepository = new InMemoryWalletRepository();
 		movementRepository = new InMemoryMovementRepository();
-		knownTransferNumber = TransferNumber.random();
-		movementIdGenerator = new KnownMovementIdGenerator(knownTransferNumber);
+		knownMovementId = MovementId.random();
+		movementIdGenerator = new KnownMovementIdGenerator(knownMovementId);
 		externalLoadUseCase = new ExternalLoadUseCase(walletRepository, movementRepository, externalAccountRepository,
 				movementIdGenerator);
 		wallet = new Wallet(new Email("user@gmail.com"), new Password("hola12345"));
@@ -50,7 +48,7 @@ public class ExternalLoadUseCaseTest {
 		ExternalLoadRequest request = buildRequest(wallet.getEmail().address(), BigDecimal.valueOf(100.0));
 		MovementView response = externalLoadUseCase.loadFromExternal(request);
 		assertEquals(100.0, wallet.getBalance().amount());
-		assertEquals(knownTransferNumber.value().toString(), response.id());
+		assertEquals(knownMovementId.value().toString(), response.id());
 		assertEquals(wallet.getEmail().address(), response.toParticipant().email());
 		assertEquals("BANK_TRANSFER", response.fromParticipant().serviceName());
 	}

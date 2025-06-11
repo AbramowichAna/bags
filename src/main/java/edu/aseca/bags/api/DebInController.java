@@ -1,9 +1,8 @@
 package edu.aseca.bags.api;
 
-import edu.aseca.bags.api.dto.DebInRequest;
 import edu.aseca.bags.application.DebInUseCase;
+import edu.aseca.bags.application.dto.DebInRequest;
 import edu.aseca.bags.domain.email.Email;
-import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.exception.UnsupportedExternalService;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.security.SecurityService;
