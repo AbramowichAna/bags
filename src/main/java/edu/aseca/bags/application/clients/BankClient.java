@@ -1,12 +1,13 @@
 package edu.aseca.bags.application.clients;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.exception.ExternalEntityNotFoundException;
 import edu.aseca.bags.exception.ExternalServiceException;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClient;
@@ -33,9 +34,19 @@ public class BankClient implements ExternalServiceClient {
 		Map<String, Object> body = Map.of("walletId", walletEmail.address(), "bankAccountId", service.email().address(),
 				"amount", amount.amount());
 
+		ObjectMapper mapper = new ObjectMapper();
+
 		restClient.post().uri(url).contentType(MediaType.APPLICATION_JSON).body(body).retrieve()
-				.onStatus(HttpStatus.BAD_REQUEST::equals, (req, res) -> {
-					throw new IllegalArgumentException("Invalid request to Bank API: HTTP 400");
+				.onStatus(HttpStatus.BAD_REQUEST::equals, (request, response) -> {
+					String message = "";
+					try (var is = response.getBody()) {
+						String errorJson = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+						System.out.println("Error response from Bank API: " + errorJson);
+						message = mapper.readTree(errorJson).path("error").asText("Unknown error");
+					} catch (Exception ignored) {
+						throw new IllegalArgumentException("Invalid request to Bank API: " + message);
+					}
+					throw new IllegalArgumentException("Invalid request to Bank API: " + message);
 				}).onStatus(HttpStatus.NOT_FOUND::equals, (req, res) -> {
 					throw new ExternalEntityNotFoundException();
 				}).onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
