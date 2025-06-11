@@ -1,10 +1,10 @@
 package edu.aseca.bags.api;
 
-import edu.aseca.bags.api.dto.AuthRequest;
-import edu.aseca.bags.api.dto.AuthResponse;
-import edu.aseca.bags.api.dto.CreateWalletRequest;
 import edu.aseca.bags.application.AuthService;
 import edu.aseca.bags.application.CreateWalletUseCase;
+import edu.aseca.bags.application.dto.AuthRequest;
+import edu.aseca.bags.application.dto.AuthResponse;
+import edu.aseca.bags.application.dto.CreateWalletRequest;
 import edu.aseca.bags.exception.AlreadyExistingWallet;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import jakarta.validation.Valid;

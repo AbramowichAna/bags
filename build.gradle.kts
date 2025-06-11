@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "edu.aseca"
-version = "0.1.3"
+version = "1.0.1"
 
 java {
 	toolchain {

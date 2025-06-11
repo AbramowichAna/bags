@@ -5,6 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
+import edu.aseca.bags.domain.participant.ExternalAccount;
+import edu.aseca.bags.domain.participant.ServiceType;
+import edu.aseca.bags.domain.participant.Wallet;
+import edu.aseca.bags.exception.AlreadyLinkedExternalAccount;
+import edu.aseca.bags.testutil.Defaults;
 import org.junit.jupiter.api.Test;
 
 /*

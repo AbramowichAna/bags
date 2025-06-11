@@ -1,10 +1,10 @@
 package edu.aseca.bags.testutil;
 
-import edu.aseca.bags.application.WalletRepository;
+import edu.aseca.bags.application.interfaces.WalletRepository;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.email.Password;
 import edu.aseca.bags.domain.money.Money;
-import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.domain.participant.Wallet;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class TestWalletFactory {
