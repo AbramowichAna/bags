@@ -11,6 +11,7 @@ import edu.aseca.bags.persistence.mapper.participantstrategy.ParticipantResolver
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -37,8 +38,9 @@ public class JpaMovementRepository implements MovementRepository {
 
 	@Override
 	public Page<Movement> findByParticipant(Participant participant, Pagination page) {
-		return jpaRepository.findAllByFromOrTo(participantResolver.resolve(participant),
-				participantResolver.resolve(participant), PageRequest.of(page.page(), page.size()))
+		return jpaRepository
+				.findAllByFromOrTo(participantResolver.resolve(participant), participantResolver.resolve(participant),
+						PageRequest.of(page.page(), page.size(), Sort.by(Sort.Direction.DESC, "timestamp")))
 				.map(mapper::toDomain);
 	}
 
