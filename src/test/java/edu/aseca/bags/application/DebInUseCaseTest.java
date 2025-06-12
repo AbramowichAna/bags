@@ -8,6 +8,7 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
 import edu.aseca.bags.domain.participant.Wallet;
+import edu.aseca.bags.exception.ExternalServiceException;
 import edu.aseca.bags.exception.UnsupportedExternalService;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.testutil.TestWalletFactory;
@@ -106,5 +107,28 @@ class DebInUseCaseTest {
 
 		assertThrows(IllegalArgumentException.class,
 				() -> debInUseCase.requestDebIn(null, externalServiceName, type, externalEmail, amount));
+	}
+
+	@Test
+	void failsWhenExternalApiClientReturnsFalse_008() {
+		String externalServiceName = "Bank";
+		ServiceType type = ServiceType.BANK;
+		Email externalEmail = new Email("external@bank.com");
+		double amount = 100.0;
+		externalApiClient.setShouldFail(true);
+
+		assertThrows(ExternalServiceException.class,
+				() -> debInUseCase.requestDebIn(wallet.getEmail(), externalServiceName, type, externalEmail, amount));
+	}
+
+	@Test
+	void failsWhenServiceIsNotSupportedByApiClient_009() {
+		String externalServiceName = "NonExistentService";
+		ServiceType type = ServiceType.BANK;
+		Email externalEmail = new Email("external@bank.com");
+		double amount = 100.0;
+
+		assertThrows(UnsupportedExternalService.class,
+				() -> debInUseCase.requestDebIn(wallet.getEmail(), externalServiceName, type, externalEmail, amount));
 	}
 }

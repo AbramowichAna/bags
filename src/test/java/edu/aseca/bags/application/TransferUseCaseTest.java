@@ -130,6 +130,23 @@ public class TransferUseCaseTest {
 		assertThrows(InvalidTransferException.class, () -> transferUseCase.execute(fromEmail, toEmail, Money.of(0)));
 	}
 
+	@Test
+	void transferDoesNotAffectPreviousMovements_009()
+			throws WalletNotFoundException, InsufficientFundsException, InvalidTransferException {
+		Wallet fromWallet = createAndSave(walletRepository, FROM_EMAIL, "password123", 500);
+		Wallet toWallet = createAndSave(walletRepository, TO_EMAIL, "password456", 100);
+		Email fromEmail = fromWallet.getEmail();
+		Email toEmail = toWallet.getEmail();
+		Money transferAmount = Money.of(200);
+
+		transferUseCase.execute(fromEmail, toEmail, transferAmount);
+
+		Movement movement = assertDoesNotThrow(() -> transferUseCase.execute(fromEmail, toEmail, transferAmount));
+		assertBalances(fromEmail, Money.of(100));
+		assertBalances(toEmail, Money.of(500));
+		assertTransferStored(movement);
+	}
+
 	private void assertBalances(Email fromEmail, Money amount) {
 
 		Wallet updatedFromWallet = walletRepository.findByEmail(fromEmail).orElseThrow();

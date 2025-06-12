@@ -35,7 +35,6 @@ public class BankClient implements ExternalServiceClient {
 				"amount", amount.amount());
 
 		ObjectMapper mapper = new ObjectMapper();
-
 		restClient.post().uri(url).contentType(MediaType.APPLICATION_JSON).body(body).retrieve()
 				.onStatus(HttpStatus.BAD_REQUEST::equals, (request, response) -> {
 					String message = "";

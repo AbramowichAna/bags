@@ -6,7 +6,6 @@ import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
 import edu.aseca.bags.domain.participant.ExternalAccount;
 import edu.aseca.bags.domain.participant.ServiceType;
-import edu.aseca.bags.domain.participant.Wallet;
 import edu.aseca.bags.exception.ExternalServiceException;
 import edu.aseca.bags.exception.UnsupportedExternalService;
 import edu.aseca.bags.exception.WalletNotFoundException;
