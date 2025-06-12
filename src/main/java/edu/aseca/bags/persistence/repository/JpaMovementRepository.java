@@ -38,8 +38,9 @@ public class JpaMovementRepository implements MovementRepository {
 
 	@Override
 	public Page<Movement> findByParticipant(Participant participant, Pagination page) {
-		return jpaRepository.findAllByFromOrTo(participantResolver.resolve(participant),
-				participantResolver.resolve(participant), PageRequest.of(page.page(), page.size(), Sort.by(Sort.Direction.DESC, "timestamp")))
+		return jpaRepository
+				.findAllByFromOrTo(participantResolver.resolve(participant), participantResolver.resolve(participant),
+						PageRequest.of(page.page(), page.size(), Sort.by(Sort.Direction.DESC, "timestamp")))
 				.map(mapper::toDomain);
 	}
 
