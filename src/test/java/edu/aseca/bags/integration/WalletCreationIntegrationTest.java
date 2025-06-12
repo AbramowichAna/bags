@@ -4,9 +4,9 @@ import static edu.aseca.bags.exception.GlobalExceptionHandler.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import edu.aseca.bags.api.dto.CreateWalletRequest;
-import edu.aseca.bags.persistence.SpringWalletJpaRepository;
-import edu.aseca.bags.persistence.WalletEntity;
+import edu.aseca.bags.application.dto.CreateWalletRequest;
+import edu.aseca.bags.persistence.entity.WalletEntity;
+import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 

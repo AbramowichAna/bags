@@ -1,7 +1,7 @@
 package edu.aseca.bags.application;
 
-import edu.aseca.bags.api.dto.AuthRequest;
-import edu.aseca.bags.api.dto.AuthResponse;
+import edu.aseca.bags.application.dto.AuthRequest;
+import edu.aseca.bags.application.dto.AuthResponse;
 import edu.aseca.bags.exception.WalletNotFoundException;
 import edu.aseca.bags.security.JwtUtil;
 import edu.aseca.bags.security.WalletDetailsService;

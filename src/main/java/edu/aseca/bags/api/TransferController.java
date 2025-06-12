@@ -1,12 +1,11 @@
 package edu.aseca.bags.api;
 
-import edu.aseca.bags.application.TransferQuery;
 import edu.aseca.bags.application.TransferUseCase;
+import edu.aseca.bags.application.dto.MovementView;
 import edu.aseca.bags.application.dto.Pagination;
-import edu.aseca.bags.application.dto.TransferView;
+import edu.aseca.bags.application.queries.WalletMovementsQuery;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
-import edu.aseca.bags.domain.transaction.Transfer;
 import edu.aseca.bags.exception.InsufficientFundsException;
 import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
@@ -33,34 +32,36 @@ public class TransferController {
 
 	private final TransferUseCase transferUseCase;
 	private final SecurityService securityService;
-	private final TransferQuery transferQuery;
+	private final WalletMovementsQuery movementsQuery;
 
 	public TransferController(TransferUseCase transferUseCase, SecurityService securityService,
-			TransferQuery transferQuery) {
+			WalletMovementsQuery movementsQuery) {
 		this.transferUseCase = transferUseCase;
 		this.securityService = securityService;
-		this.transferQuery = transferQuery;
+		this.movementsQuery = movementsQuery;
 	}
 
 	@Transactional
 	@PostMapping
-	public ResponseEntity<TransferView> transfer(@RequestBody @Valid TransferRequest request)
+	public ResponseEntity<MovementView> transfer(@RequestBody @Valid TransferRequest request)
 			throws WalletNotFoundException, InsufficientFundsException, InvalidTransferException {
 
 		String fromEmailAddress = securityService.getMail();
 
 		Email fromEmail = new Email(fromEmailAddress);
-		Transfer transfer = transferUseCase.execute(fromEmail, new Email(request.toEmail()),
-				new Money(request.amount()));
+		MovementView transfer = MovementView.from(
+				transferUseCase.execute(fromEmail, new Email(request.toEmail()), new Money(request.amount())),
+				fromEmail);
 
-		return ResponseEntity.ok(new TransferView(transfer, fromEmail));
+		return ResponseEntity.ok(transfer);
 	}
 
 	@GetMapping
-	public ResponseEntity<Page<TransferView>> getTransfers(@RequestParam(defaultValue = "0") @Min(0) int page,
+	public ResponseEntity<Page<MovementView>> getMovements(@RequestParam(defaultValue = "0") @Min(0) int page,
 			@RequestParam(defaultValue = "10") @Positive int size) throws WalletNotFoundException {
 		String email = securityService.getMail();
-		return ResponseEntity.ok(transferQuery.getTransfers(new Email(email), new Pagination(page, size)));
+		var responses = movementsQuery.getMovements(new Email(email), new Pagination(page, size));
+		return ResponseEntity.ok(responses);
 	}
 
 	public record TransferRequest(@NotNull String toEmail, @NotNull Double amount) {

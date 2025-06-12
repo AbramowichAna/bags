@@ -2,9 +2,8 @@ package edu.aseca.bags.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import edu.aseca.bags.application.WalletRepository;
-import edu.aseca.bags.persistence.SpringWalletJpaRepository;
-import edu.aseca.bags.persistence.WalletMapper;
+import edu.aseca.bags.persistence.repository.JpaWalletRepository;
+import edu.aseca.bags.persistence.repository.SpringWalletJpaRepository;
 import edu.aseca.bags.testutil.JwtTestUtil;
 import edu.aseca.bags.testutil.TestWalletFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,10 @@ class PublicRoutesTest {
 	private TestRestTemplate restTemplate;
 
 	@Autowired
-	private SpringWalletJpaRepository walletRepository;
+	private SpringWalletJpaRepository springWalletJpaRepository;
+
+	@Autowired
+	private JpaWalletRepository walletRepository;
 
 	@Autowired
 	private JwtTestUtil jwtTestUtil;
@@ -36,8 +38,8 @@ class PublicRoutesTest {
 
 	@BeforeEach
 	void setUp() {
-		walletRepository.deleteAll();
-		walletRepository.save(WalletMapper.toEntity(TestWalletFactory.createWallet(EMAIL, PASSWORD)));
+		springWalletJpaRepository.deleteAll();
+		walletRepository.save((TestWalletFactory.createWallet(EMAIL, PASSWORD)));
 		jwtToken = jwtTestUtil.generateValidToken(EMAIL, 3600);
 	}
 
