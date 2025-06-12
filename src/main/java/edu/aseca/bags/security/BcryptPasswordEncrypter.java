@@ -1,6 +1,6 @@
 package edu.aseca.bags.security;
 
-import edu.aseca.bags.application.PasswordEncoder;
+import edu.aseca.bags.application.interfaces.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component

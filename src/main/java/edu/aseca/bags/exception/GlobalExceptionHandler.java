@@ -13,6 +13,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,6 +43,16 @@ public class GlobalExceptionHandler {
 				null);
 	}
 
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+
+	public ResponseEntity<ApiErrorResponse> handleHttpRequestMethodNotSupported(
+			HttpRequestMethodNotSupportedException ex, HttpServletRequest req) {
+		String message = String.format("Method '%s' is not supported for this request. Supported methods are: %s",
+				ex.getMethod(), ex.getSupportedHttpMethods());
+		return buildErrorResponse("Method Not Allowed", HttpStatus.METHOD_NOT_ALLOWED, message, req.getRequestURI(),
+				null);
+	}
+
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	public ResponseEntity<ApiErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
 			HttpServletRequest req) {
@@ -51,6 +63,15 @@ public class GlobalExceptionHandler {
 				expectedType, receivedValue);
 
 		return buildErrorResponse("Bad Request", HttpStatus.BAD_REQUEST, message, req.getRequestURI(), null);
+	}
+
+	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+	public ResponseEntity<ApiErrorResponse> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex,
+			HttpServletRequest req) {
+		String message = String.format("Media type '%s' is not supported. Supported media types are: %s",
+				ex.getContentType(), ex.getSupportedMediaTypes());
+		return buildErrorResponse("Unsupported Media Type", HttpStatus.UNSUPPORTED_MEDIA_TYPE, message,
+				req.getRequestURI(), null);
 	}
 
 	@ExceptionHandler(ConstraintDeclarationException.class)
@@ -132,6 +153,31 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<?> handleInvalidTransferException(InvalidTransferException e, HttpServletRequest request) {
 		return buildErrorResponse("Invalid transfer", HttpStatus.BAD_REQUEST, e.getMessage(), request.getRequestURI(),
 				null);
+	}
+
+	@ExceptionHandler(edu.aseca.bags.exception.InvalidApiTokenException.class)
+	public ResponseEntity<?> handleInvalidApiTokenException(edu.aseca.bags.exception.InvalidApiTokenException ex,
+			HttpServletRequest request) {
+		return ResponseEntity.status(401)
+				.body(new ApiErrorResponse("Unauthorized", 401, ex.getMessage(), request.getRequestURI(), null));
+	}
+
+	@ExceptionHandler(ExternalServiceException.class)
+	public ResponseEntity<String> handleExternalService(ExternalServiceException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
+	}
+
+	@ExceptionHandler(UnsupportedExternalService.class)
+	public ResponseEntity<String> handleExternalService(UnsupportedExternalService ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+	}
+
+	@ExceptionHandler(ExternalEntityNotFoundException.class)
+	public ResponseEntity<ApiErrorResponse> handleExternalEntityNotFound(ExternalEntityNotFoundException ex,
+			HttpServletRequest request) {
+		ApiErrorResponse error = new ApiErrorResponse("Not Found", HttpStatus.NOT_FOUND.value(),
+				"The requested external entity was not found", request.getRequestURI(), Map.of());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)

@@ -3,11 +3,16 @@ package edu.aseca.bags.application;
 import static edu.aseca.bags.testutil.TestWalletFactory.createAndSave;
 import static org.junit.jupiter.api.Assertions.*;
 
+import edu.aseca.bags.application.interfaces.MovementRepository;
+import edu.aseca.bags.application.interfaces.WalletRepository;
+import edu.aseca.bags.application.util.InMemoryMovementRepository;
+import edu.aseca.bags.application.util.InMemoryWalletRepository;
+import edu.aseca.bags.application.util.KnownMovementIdGenerator;
 import edu.aseca.bags.domain.email.Email;
 import edu.aseca.bags.domain.money.Money;
-import edu.aseca.bags.domain.transaction.Transfer;
-import edu.aseca.bags.domain.transaction.TransferNumber;
-import edu.aseca.bags.domain.wallet.Wallet;
+import edu.aseca.bags.domain.participant.Wallet;
+import edu.aseca.bags.domain.transaction.Movement;
+import edu.aseca.bags.domain.transaction.MovementId;
 import edu.aseca.bags.exception.InsufficientFundsException;
 import edu.aseca.bags.exception.InvalidTransferException;
 import edu.aseca.bags.exception.WalletNotFoundException;
@@ -21,20 +26,20 @@ public class TransferUseCaseTest {
 	private TransferUseCase transferUseCase;
 	private WalletRepository walletRepository;
 
-	private TransferRepository transferRepository;
+	private MovementRepository movementRepository;
 
 	private final UUID knownUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-	private final TransferNumber knownTransferNumber = TransferNumber.of(knownUuid);
+	private final MovementId knownMovementId = MovementId.of(knownUuid);
 	private static final String FROM_EMAIL = "from@example.com";
 	private static final String TO_EMAIL = "to@example.com";
 
 	@BeforeEach
 	void setUp() {
 		walletRepository = new InMemoryWalletRepository();
-		transferRepository = new InMemoryTransferRepository();
-		var gen = new KnownTransferNumberGenerator(knownTransferNumber);
-		transferUseCase = new TransferUseCase(walletRepository, transferRepository, gen);
+		movementRepository = new InMemoryMovementRepository();
+		var gen = new KnownMovementIdGenerator(knownMovementId);
+		transferUseCase = new TransferUseCase(walletRepository, movementRepository, gen);
 	}
 
 	@Test
@@ -47,14 +52,14 @@ public class TransferUseCaseTest {
 		Email fromEmail = fromWallet.getEmail();
 		Email toEmail = toWallet.getEmail();
 
-		Transfer transfer = assertDoesNotThrow(() -> transferUseCase.execute(fromEmail, toEmail, transferAmount));
+		Movement movement = assertDoesNotThrow(() -> transferUseCase.execute(fromEmail, toEmail, transferAmount));
 
-		assertTransferDetails(transfer, fromWallet, toWallet, transferAmount);
+		assertTransferDetails(movement, fromWallet, toWallet, transferAmount);
 
 		assertBalances(fromEmail, Money.of(200));
 		assertBalances(toEmail, Money.of(400));
 
-		assertTransferStored(transfer);
+		assertTransferStored(movement);
 	}
 
 	@Test
@@ -131,18 +136,18 @@ public class TransferUseCaseTest {
 		assertEquals(amount, updatedFromWallet.getBalance());
 	}
 
-	private void assertTransferStored(Transfer transfer) {
-		Transfer foundTransfer = assertDoesNotThrow(() -> transferRepository.findByTransferNumber(knownTransferNumber)
+	private void assertTransferStored(Movement movement) {
+		Movement foundTransfer = assertDoesNotThrow(() -> movementRepository.findById(knownMovementId)
 				.orElseThrow(() -> new RuntimeException("Transfer not found in repository")));
 
-		assertEquals(transfer, foundTransfer);
+		assertEquals(movement, foundTransfer);
 	}
 
-	private static void assertTransferDetails(Transfer transfer, Wallet fromWallet, Wallet toWallet,
+	private static void assertTransferDetails(Movement transfer, Wallet fromWallet, Wallet toWallet,
 			Money transferAmount) {
 		assertNotNull(transfer);
-		assertEquals(fromWallet, transfer.fromWallet());
-		assertEquals(toWallet, transfer.toWallet());
+		assertEquals(fromWallet.getEmail(), transfer.from().getEmail());
+		assertEquals(toWallet.getEmail(), transfer.to().getEmail());
 		assertEquals(transferAmount, transfer.amount());
 		assertNotNull(transfer.timestamp());
 	}
